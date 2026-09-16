@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>F2 CET P.30-31 practice</title>
+  <style>
+    :root {
+      --primary-color: #4a90e2;
+      --success-color: #2ecc71;
+      --error-color: #e74c3c;
+      --bg-color: #f5f7fa;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    body { 
+      background-color: var(--bg-color); 
+      padding: 15px 15px 180px 15px !important; 
+      color: #333; 
+      max-width: 600px; 
+      margin: 0 auto; 
+    }
+
+    h1 { text-align: center; font-size: 1.4rem; margin-bottom: 15px; color: var(--primary-color); }
+
+    /* 控制面板 */
+    .nav-buttons { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; background: #e0e0e0; font-weight: bold; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; text-align: center; }
+    .btn.active { background: var(--primary-color); color: white; }
+    .btn-secondary { background: #95a5a6; color: white; }
+    .btn-danger { background: #e67e22; color: white; }
+    .btn-success { background: var(--success-color); color: white; }
+
+    /* 下拉選單與設定區 */
+    .group-select-container { display: flex; align-items: center; justify-content: space-between; background: var(--card-bg); padding: 10px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    select { padding: 6px 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 0.9rem; outline: none; }
+
+    /* 統計欄 */
+    .status-bar { display: flex; justify-content: space-between; background: var(--card-bg); padding: 10px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+    /* 卡片區域 */
+    .card { 
+      background: var(--card-bg); 
+      padding: 20px 15px 35px 15px !important; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08); 
+      text-align: center; 
+      position: relative; 
+      margin-bottom: 15px; 
+      min-height: 220px; 
+    }
+
+    .word-prompt { font-size: 1.15rem; margin-bottom: 15px; font-weight: 500; line-height: 1.4; }
+    .phonetic { color: #7f8c8d; font-size: 0.9rem; margin-bottom: 10px; }
+
+    /* 完全無提示的字母輸入區 */
+    .letters-container { display: flex; justify-content: center; gap: 6px; margin: 15px 0 25px 0 !important; flex-wrap: wrap; }
+    .letter-box { width: 30px; height: 40px; border-bottom: 3px solid #bdc3c7; font-size: 1.3rem; font-weight: bold; text-align: center; line-height: 40px; text-transform: lowercase; }
+    .letter-box.active { border-bottom-color: var(--primary-color); background: #ebf5fb; }
+    .letter-box.correct { border-bottom-color: var(--success-color); color: var(--success-color); }
+    .letter-box.wrong { border-bottom-color: var(--error-color); color: var(--error-color); }
+
+    /* 正確的隱藏輸入框定位：保持在視窗內但透明，確保 iOS / Android 能觸發鍵盤 */
+    #hidden-input { 
+      position: absolute; 
+      opacity: 0; 
+      left: 0; 
+      top: 0; 
+      width: 100%; 
+      height: 100%; 
+      z-index: 1; 
+      border: none; 
+      outline: none; 
+    }
+
+    /* 選項按鈕 */
+    .options-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 15px; }
+    .option-btn { padding: 12px; border: 2px solid #ecf0f1; border-radius: 8px; background: white; font-size: 0.95rem; text-align: left; cursor: pointer; transition: 0.2s; }
+    .option-btn:active { background: #e8f4f8; }
+    .option-btn.correct { background: var(--success-color); color: white; border-color: var(--success-color); }
+    .option-btn.wrong { background: var(--error-color); color: white; border-color: var(--error-color); }
+
+    /* 導覽列 */
+    .nav-control { display: flex; gap: 10px; margin-bottom: 15px; }
+
+    /* 答案顯示 */
+    .answer-display { margin-top: 15px; padding: 12px; background: #fdf2e9; color: #d35400; border-radius: 6px; font-weight: bold; text-align: left; line-height: 1.4; font-size: 0.9rem; display: none; }
+
+    /* Modal 與排行榜表格 */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: white; padding: 20px; border-radius: 12px; width: 92%; max-width: 450px; max-height: 85vh; overflow-y: auto; }
+    .modal-content input { padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 0.95rem; outline: none; }
+
+    .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; text-align: center; }
+    .leaderboard-table th, .leaderboard-table td { padding: 8px 4px; border-bottom: 1px solid #eee; }
+    .leaderboard-table th { background-color: #f8f9fa; color: #555; }
+    .leaderboard-table tr:nth-child(1) { font-weight: bold; color: #d35400; }
+    .leaderboard-table tr:nth-child(2) { font-weight: bold; color: #7f8c8d; }
+    .leaderboard-table tr:nth-child(3) { font-weight: bold; color: #b03a2e; }
+
+    .speaker-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; vertical-align: middle; margin-left: 5px; }
+  </style>
+</head>
+<body>
+
+  <h1>📚 F2 CET P.30-31 practice</h1>
+
+  <!-- 模式切換 -->
+  <div class="nav-buttons">
+    <button class="btn active" onclick="switchMode('spelling', event)">單詞聽寫</button>
+    <button class="btn" onclick="switchMode('matching', event)">詞義配對</button>
+    <button class="btn" onclick="switchMode('sentence', event)">句型填空</button>
+  </div>
+
+  <!-- 分組選擇器 -->
+  <div class="group-select-container">
+    <label for="group-select"><b>📍 選擇單詞範圍：</b></label>
+    <select id="group-select" onchange="initQuiz()">
+      <option value="1-10">1 - 10 詞</option>
+      <option value="11-20">11 - 20 詞</option>
+      <option value="21-27">21 - 27 詞</option>
+      <option value="1-27 全範圍">1 - 27 全範圍隨機</option>
+    </select>
+  </div>
+
+  <!-- 功能按鈕 -->
+  <div class="nav-buttons">
+    <button class="btn btn-secondary" id="bank-toggle" onclick="toggleErrorBank()">切換至錯題本 (0)</button>
+    <button class="btn btn-danger" onclick="showAnswer()">查看答案與註解</button>
+  </div>
+
+  <!-- 狀態資訊欄 -->
+  <div class="status-bar">
+    <span id="progress-text">進度: 1 / 10</span>
+    <span id="timer-text">用時: 00:00</span>
+    <span id="score-text">得分: 0 分</span>
+  </div>
+
+  <!-- 主卡片區域 -->
+  <div class="card" onclick="focusInput()">
+    <div id="prompt-area" class="word-prompt">載入中...</div>
+    <div id="phonetic-area" class="phonetic"></div>
+
+    <!-- 模式1: 無提示拼寫區域 -->
+    <div id="spelling-area">
+      <div id="letters-container" class="letters-container"></div>
+      <input type="text" id="hidden-input" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+
+    <!-- 模式2 & 3: 多選題區域 -->
+    <div id="options-area" class="options-grid" style="display: none;"></div>
+
+    <!-- 答案與註解顯示區 -->
+    <div id="answer-display" class="answer-display"></div>
+  </div>
+
+  <!-- 導覽控制 -->
+  <div class="nav-control">
+    <button class="btn" id="prev-btn" onclick="prevQuestion()">⬅️ 上一題</button>
+    <button class="btn active" id="next-btn" onclick="nextQuestion()">下一題 ➡️</button>
+    <button class="btn btn-success" id="submit-btn" style="display: none;" onclick="openLeaderboard()">🏆 提交測驗與成績</button>
+  </div>
+
+  <!-- 排行榜與提交 Modal -->
+  <div id="leaderboard-modal" class="modal">
+    <div class="modal-content">
+      <h3 style="text-align: center; color: var(--primary-color);">🎉 測驗完成與排行榜</h3>
+      <p id="final-score-desc" style="margin: 10px 0; font-size:1.05rem; text-align:center; font-weight:bold;"></p>
+      
+      <!-- 姓名與班號輸入區域 -->
+      <div id="input-section">
+        <div style="display: flex; gap: 8px; margin: 10px 0;">
+          <input type="text" id="user-name" placeholder="姓名 (例: 張小明)" style="flex: 2;">
+          <input type="text" id="user-seat" placeholder="班號 (例: 01)" style="flex: 1;">
+        </div>
+        <button class="btn btn-success" id="submit-score-btn" style="width:100%;" onclick="submitScore()">提交成績並同步 Google Sheet</button>
+      </div>
+
+      <!-- 排行榜展示區 -->
+      <div id="leaderboard-section" style="margin-top: 15px;">
+        <h4 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">🏆 排行榜</h4>
+        <table class="leaderboard-table">
+          <thead>
+            <tr>
+              <th>排名</th>
+              <th>姓名(班號)</th>
+              <th>得分</th>
+              <th>用時</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body">
+            <!-- 排行榜資料動態插入 -->
+          </tbody>
+        </table>
+      </div>
+
+      <button class="btn" style="width:100%; margin-top:15px;" onclick="closeLeaderboard()">返回檢查題目</button>
+    </div>
+  </div>
+
+  <script>
+    const rawData = [
+      { id: 1, word: "education", phonetic: "/ˌedjuˈkeɪʃn/", cn: "教育；教育學", a2_sentence: "If you want to get a good job in the future, having a high quality ______ is very important.", sentence_cn: "如果你將來想找一份好工作，擁有高品質的教育是非常重要的。" },
+      { id: 2, word: "knowledge", phonetic: "/ˈnɒlɪdʒ/", cn: "知識；學識", a2_sentence: "Reading different kinds of storybooks every week can help students gain a lot of useful ______.", sentence_cn: "每週閱讀不同種類的故事書可以幫助學生獲得許多有用的知識。" },
+      { id: 3, word: "grammar", phonetic: "/ˈɡræmə/", cn: "語法；文法", a2_sentence: "Our English teacher always explains the rules of ______ clearly so that we can write better essays.", sentence_cn: "我們的英文老師總是清楚地解釋語法規則，以便我們能寫出更好的文章。" },
+      { id: 4, word: "alphabet", phonetic: "/ˈælfəbet/", cn: "字母表", a2_sentence: "Young children usually learn how to sing the English ______ song before they start writing words.", sentence_cn: "幼兒在開始寫單字之前，通常會先學習唱英文字母表歌曲。" },
+      { id: 5, word: "vocabulary", phonetic: "/vəˈkæbjələri/", cn: "詞彙量", a2_sentence: "You should write down all the new words in your notebook to improve your English ______ quickly.", sentence_cn: "你應該把所有新單字記在筆記本裡，以迅速提升你的英語詞彙量。" },
+      { id: 6, word: "phrase", phonetic: "/freɪz/", cn: "短語；片語", a2_sentence: "When you do not understand a common English ______, you can look it up in the dictionary.", sentence_cn: "當你不理解一個常見的英文短語時，你可以在字典中查閱它。" },
+      { id: 7, word: "language", phonetic: "/ˈlæŋɡwɪdʒ/", cn: "語言", a2_sentence: "Learning to speak a foreign ______ fluently takes a lot of time and practice every single day.", sentence_cn: "流利地學說一門外語每天都需要花費大量的時間與練習。" },
+      { id: 8, word: "accent", phonetic: "/ˈæksent/", cn: "口音；腔調", a2_sentence: "Even though he comes from Canada, he speaks English with a very strong local British ______.", sentence_cn: "儘管他來自加拿大，但他說英語時帶著濃厚的英國當地口音。" },
+      { id: 9, word: "dialect", phonetic: "/ˈdaɪəlekt/", cn: "方言", a2_sentence: "Old people in this small village prefer to speak their own traditional ______ rather than standard English.", sentence_cn: "這個小村莊的老人更喜歡說他們自己的傳統方言，而不是標準英語。" },
+      { id: 10, word: "mathematics", phonetic: "/ˌmæθəˈmætɪks/", cn: "數學", a2_sentence: "Many students in our school think that ______ is much more difficult than history or geography.", sentence_cn: "我們學校的許多學生認為數學比歷史或地理要難得多。" },
+      { id: 11, word: "arithmetic", phonetic: "/əˈrɪθmətɪk/", cn: "算術", a2_sentence: "Primary school students need to practice basic ______ every day to solve simple math problems quickly.", sentence_cn: "小學生每天需要練習基礎算術，以便快速解答簡單的數學題目。" },
+      { id: 12, word: "geometry", phonetic: "/dʒiˈɒmətri/", cn: "幾何學", a2_sentence: "In our high school math class yesterday, we learned how to draw circles and triangles in ______.", sentence_cn: "在昨天的高中數學課上，我們學習了如何在幾何學中畫圓形和三角形。" },
+      { id: 13, word: "statistics", phonetic: "/stəˈtɪstɪks/", cn: "統計數據", a2_sentence: "The recent report showed some interesting ______ about how teenagers spend their free time on weekends.", sentence_cn: "最近的這份報告顯示了一些關於青少年週末如何度過課餘時間的有趣統計數據。" },
+      { id: 14, word: "sociology", phonetic: "/ˌsəʊsiˈɒlədʒi/", cn: "社會學", a2_sentence: "My older sister wants to study ______ at university because she is interested in human society.", sentence_cn: "我姐姐想在大學學習社會學，因為她對人類社會很感興趣。" },
+      { id: 15, word: "politics", phonetic: "/ˈpɒlətɪks/", cn: "政治", a2_sentence: "My parents like to watch the news on television every evening to discuss global ______ and events.", sentence_cn: "我的父母喜歡每天晚上看電視新聞，討論全球政治與時事事件。" },
+      { id: 16, word: "economics", phonetic: "/ˌiːkəˈnɒmɪks/", cn: "經濟學", a2_sentence: "Understanding the basic rules of ______ can help people make smarter decisions about spending money.", sentence_cn: "理解經濟學的基本原理可以幫助人們在花錢時做出更聰明的決定。" },
+      { id: 17, word: "economic", phonetic: "/ˌiːkəˈnɒmɪk/", cn: "經濟上的", a2_sentence: "The government is trying hard to fix the serious ______ problems that the country is facing right now.", sentence_cn: "政府正努力解決國家目前所面臨的嚴重經濟問題。" },
+      { id: 18, word: "economical", phonetic: "/ˌiːkəˈnɒmikl/", cn: "省錢的；實惠的", a2_sentence: "Taking the bus to school every morning is much more ______ than going by taxi with your friends.", sentence_cn: "每天早上坐公車上學比和朋友一起打計程車要劃算省錢得多。" },
+      { id: 19, word: "historical", phonetic: "/hɪˈstɒrɪkl/", cn: "歷史的", a2_sentence: "We visited several famous ______ buildings during our summer holiday trip to London last year.", sentence_cn: "去年夏天在倫敦度假期間，我們參觀了幾處著名的歷史建築。" },
+      { id: 20, word: "agriculture", phonetic: "/ˈæɡrɪkʌltʃə/", cn: "農業", a2_sentence: "A large number of people living in the countryside still depend on ______ to earn their living.", sentence_cn: "許多住在鄉下的人仍然依靠農業維生。" },
+      { id: 21, word: "geography", phonetic: "/dʒiˈɒɡrəfi/", cn: "地理學", a2_sentence: "We learned about different climate zones and rivers in our ______ class this morning.", sentence_cn: "今天早上的地理課上，我們學習了不同的氣候帶和河流。" },
+      { id: 22, word: "biology", phonetic: "/baɪˈɒlədʒi/", cn: "生物學", a2_sentence: "In ______ class, students used microscopes to observe living cells.", sentence_cn: "在生物課上，學生們使用顯微鏡觀察活細胞。" },
+      { id: 23, word: "chemistry", phonetic: "/ˈkemɪstri/", cn: "化學", a2_sentence: "Please wear safety glasses when doing experiments in the ______ lab.", sentence_cn: "在化學實驗室做實驗時請戴上防護眼鏡。" },
+      { id: 24, word: "physics", phonetic: "/ˈfɪzɪks/", cn: "物理學", a2_sentence: "Isaac Newton made many groundbreaking discoveries in the field of ______.", sentence_cn: "艾薩克·牛頓在物理學領域做出了許多突破性的發現。" },
+      { id: 25, word: "literature", phonetic: "/ˈlɪtrətʃə/", cn: "文學", a2_sentence: "Studying classical English ______ helps broaden students' understanding of culture.", sentence_cn: "學習經典英語文學有助於擴大學生對文化的理解。" },
+      { id: 26, word: "philosophy", phonetic: "/fəˈlɒsəfi/", cn: "哲學", a2_sentence: "He enjoys reading books on ancient Greek ______ in his spare time.", sentence_cn: "他喜歡在空閒時間閱讀古希臘哲學書籍。" },
+      { id: 27, word: "psychology", phonetic: "/saɪˈkɒlədʒi/", cn: "心理學", a2_sentence: "Understanding basic ______ can help teachers better manage classroom behaviors.", sentence_cn: "理解基礎心理學有助於教師更好地管理課堂行為。" }
+    ];
+
+    let currentMode = 'spelling';
+    let isErrorBankMode = false;
+    let errorBank = JSON.parse(localStorage.getItem('f2_cet_error_bank') || '[]');
+    let localLeaderboard = JSON.parse(localStorage.getItem('f2_cet_leaderboard') || '[]');
+    
+    let quizList = [];
+    let quizListOptions = []; 
+    let currentIndex = 0;
+    let userAnswers = {};
+
+    let timerInterval = null;
+    let secondsElapsed = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    function playAudioTone(freq, type, duration) {
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+        osc.stop(audioCtx.currentTime + duration);
+      } catch(e) {}
+    }
+
+    function playCorrectSound() {
+      playAudioTone(523.25, 'sine', 0.15);
+      setTimeout(() => playAudioTone(659.25, 'sine', 0.3), 100);
+    }
+
+    function playWrongSound() {
+      playAudioTone(150, 'sawtooth', 0.15);
+      setTimeout(() => playAudioTone(130, 'sawtooth', 0.3), 150);
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US';
+        msg.rate = 0.95;
+        msg.pitch = 1.0;
+
+        const voices = window.speechSynthesis.getVoices();
+        const femaleVoice = voices.find(v => 
+          v.lang.startsWith('en') && 
+          (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Victoria') || v.name.includes('Google US English'))
+        );
+        if (femaleVoice) msg.voice = femaleVoice;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+
+    window.onload = () => {
+      startTimer();
+      updateErrorBankButton();
+      initQuiz();
+      setupSpellingInputListener();
+    };
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+        const secs = String(secondsElapsed % 60).padStart(2, '0');
+        document.getElementById('timer-text').innerText = `用時: ${mins}:${secs}`;
+      }, 1000);
+    }
+
+    function shuffleArray(array) {
+      let arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function initQuiz() {
+      const groupVal = document.getElementById('group-select').value;
+      let pool = [];
+
+      if (isErrorBankMode) {
+        pool = [...errorBank];
+      } else {
+        if (groupVal === "1-10") pool = rawData.slice(0, 10);
+        else if (groupVal === "11-20") pool = rawData.slice(10, 20);
+        else if (groupVal === "21-27") pool = rawData.slice(20, 27);
+        else pool = [...rawData];
+      }
+
+      if (pool.length === 0) {
+        alert("該分組或錯題本內沒有題目！");
+        return;
+      }
+
+      let shuffled = shuffleArray(pool);
+      quizList = shuffled.slice(0, 10);
+      quizListOptions = [];
+
+      quizList.forEach(item => {
+        const key = currentMode === 'matching' ? 'cn' : 'word';
+        let options = [item[key]];
+        let otherPool = rawData.filter(d => d.id !== item.id).map(d => d[key]);
+        otherPool = shuffleArray(otherPool);
+        options = options.concat(otherPool.slice(0, 3));
+        options = shuffleArray(options);
+        quizListOptions.push(options);
+      });
+
+      currentIndex = 0;
+      userAnswers = {};
+
+      startTimer();
+      loadQuestion();
+    }
+
+    function switchMode(mode, evt) {
+      currentMode = mode;
+      document.querySelectorAll('.nav-buttons .btn').forEach((b, i) => {
+        if(i < 3) b.classList.remove('active');
+      });
+      if(evt && evt.target) evt.target.classList.add('active');
+      initQuiz();
+    }
+
+    function toggleErrorBank() {
+      isErrorBankMode = !isErrorBankMode;
+      const btn = document.getElementById('bank-toggle');
+      if (isErrorBankMode) {
+        if (errorBank.length === 0) {
+          alert('目前錯題本為空！');
+          isErrorBankMode = false;
+          return;
+        }
+        btn.innerText = `切換至正常題庫`;
+        btn.style.background = "#e74c3c";
+      } else {
+        btn.innerText = `切換至錯題本 (${errorBank.length})`;
+        btn.style.background = "#95a5a6";
+      }
+      initQuiz();
+    }
+
+    function updateErrorBankButton() {
+      const btn = document.getElementById('bank-toggle');
+      if (!isErrorBankMode) {
+        btn.innerText = `切換至錯題本 (${errorBank.length})`;
+      }
+    }
+
+    function addToErrorBank(item) {
+      if (!errorBank.some(e => e.id === item.id)) {
+        errorBank.push(item);
+        localStorage.setItem('f2_cet_error_bank', JSON.stringify(errorBank));
+        updateErrorBankButton();
+      }
+    }
+
+    function removeFromErrorBank(item) {
+      errorBank = errorBank.filter(e => e.id !== item.id);
+      localStorage.setItem('f2_cet_error_bank', JSON.stringify(errorBank));
+      updateErrorBankButton();
+    }
+
+    function loadQuestion() {
+      document.getElementById('answer-display').style.display = 'none';
+      if (quizList.length === 0) return;
+
+      const item = quizList[currentIndex];
+
+      document.getElementById('progress-text').innerText = `進度: ${currentIndex + 1} / ${quizList.length}`;
+      document.getElementById('prev-btn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      if (currentIndex === quizList.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+      } else {
+        nextBtn.style.display = 'block';
+        submitBtn.style.display = 'none';
+      }
+
+      calculateScore();
+
+      const spellingArea = document.getElementById('spelling-area');
+      const optionsArea = document.getElementById('options-area');
+
+      if (currentMode === 'spelling') {
+        spellingArea.style.display = 'block';
+        optionsArea.style.display = 'none';
+
+        document.getElementById('prompt-area').innerHTML = `${item.cn} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('phonetic-area').innerText = item.phonetic;
+
+        const container = document.getElementById('letters-container');
+        container.innerHTML = '';
+
+        const savedVal = userAnswers[currentIndex] || '';
+
+        for (let i = 0; i < item.word.length; i++) {
+          const box = document.createElement('div');
+          box.className = 'letter-box';
+          if (savedVal[i]) box.innerText = savedVal[i];
+          container.appendChild(box);
+        }
+
+        refreshSpellingUI(savedVal, item.word);
+
+        const input = document.getElementById('hidden-input');
+        input.value = savedVal;
+        focusInput();
+        speakWord(item.word);
+
+      } else if (currentMode === 'matching') {
+        spellingArea.style.display = 'none';
+        optionsArea.style.display = 'grid';
+
+        document.getElementById('prompt-area').innerHTML = `${item.word} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('phonetic-area').innerText = item.phonetic;
+
+        renderFixedOptions(item, 'cn');
+
+      } else if (currentMode === 'sentence') {
+        spellingArea.style.display = 'none';
+        optionsArea.style.display = 'grid';
+
+        document.getElementById('prompt-area').innerText = item.a2_sentence;
+        document.getElementById('phonetic-area').innerText = "";
+
+        renderFixedOptions(item, 'word');
+      }
+    }
+
+    function renderFixedOptions(currentItem, key) {
+      const container = document.getElementById('options-area');
+      container.innerHTML = '';
+
+      const options = quizListOptions[currentIndex] || [];
+      const currentSavedAnswer = userAnswers[currentIndex];
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+
+        if (currentSavedAnswer) {
+          if (opt === currentItem[key]) btn.classList.add('correct');
+          if (opt === currentSavedAnswer && opt !== currentItem[key]) btn.classList.add('wrong');
+        }
+
+        btn.onclick = () => {
+          userAnswers[currentIndex] = opt;
+          if (opt === currentItem[key]) {
+            playCorrectSound();
+            if (isErrorBankMode) removeFromErrorBank(currentItem);
+          } else {
+            playWrongSound();
+            addToErrorBank(currentItem);
+          }
+          loadQuestion();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function refreshSpellingUI(val, targetWord) {
+      const boxes = document.querySelectorAll('.letter-box');
+      boxes.forEach((box, i) => {
+        box.classList.remove('active', 'correct', 'wrong');
+        box.innerText = val[i] || '';
+
+        if (val.length === targetWord.length) {
+          if (val === targetWord) {
+            box.classList.add('correct');
+          } else {
+            box.classList.add('wrong');
+          }
+        } else {
+          if (i === val.length) box.classList.add('active');
+        }
+      });
+    }
+
+    // 正確的打字監聽邏輯：將隱藏輸入框打的字實時更新到字母底線
+    function setupSpellingInputListener() {
+      const input = document.getElementById('hidden-input');
+      if (!input) return;
+
+      input.addEventListener('input', (e) => {
+        if (currentMode !== 'spelling') return;
+
+        const targetWord = quizList[currentIndex].word;
+        let val = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
+
+        if (val.length > targetWord.length) {
+          val = val.slice(0, targetWord.length);
+        }
+
+        e.target.value = val;
+        userAnswers[currentIndex] = val;
+
+        refreshSpellingUI(val, targetWord);
+
+        // 打字完成判斷
+        if (val.length === targetWord.length) {
+          if (val === targetWord) {
+            playCorrectSound();
+            if (isErrorBankMode) removeFromErrorBank(quizList[currentIndex]);
+          } else {
+            playWrongSound();
+            addToErrorBank(quizList[currentIndex]);
+          }
+        }
+      });
+
+      // 防鍵盤遮擋：聚焦時自動平滑上滑
+      input.addEventListener('focus', () => {
+        setTimeout(() => {
+          const card = document.querySelector('.card');
+          if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 300);
+      });
+    }
+
+    // 聚焦輸入框
+    function focusInput() {
+      if (currentMode === 'spelling') {
+        const input = document.getElementById('hidden-input');
+        if (input) {
+          input.focus();
+        }
+      }
+    }
+
+    function prevQuestion() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        loadQuestion();
+      }
+    }
+
+    function nextQuestion() {
+      if (currentIndex < quizList.length - 1) {
+        currentIndex++;
+        loadQuestion();
+      }
+    }
+
+    function calculateScore() {
+      let correctCount = 0;
+      quizList.forEach((item, idx) => {
+        const ans = userAnswers[idx];
+        if (currentMode === 'spelling') {
+          if (ans === item.word) correctCount++;
+        } else if (currentMode === 'matching') {
+          if (ans === item.cn) correctCount++;
+        } else if (currentMode === 'sentence') {
+          if (ans === item.word) correctCount++;
+        }
+      });
+
+      const score = Math.round((correctCount / quizList.length) * 100);
+      document.getElementById('score-text').innerText = `得分: ${score} 分`;
+      return score;
+    }
+
+    function showAnswer() {
+      const item = quizList[currentIndex];
+      const ansDiv = document.getElementById('answer-display');
+      ansDiv.style.display = 'block';
+
+      if (currentMode === 'sentence') {
+        ansDiv.innerHTML = `📌 <b>填空標準答案：</b> ${item.word}<br>📖 <b>句型中文翻譯：</b> ${item.sentence_cn}`;
+      } else {
+        ansDiv.innerHTML = `📌 <b>標準答案：</b> ${item.word}<br>📖 <b>中文註解：</b> ${item.cn}`;
+      }
+      addToErrorBank(item);
+    }
+
+    function formatTime(secs) {
+      const m = Math.floor(secs / 60);
+      const s = secs % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function renderLeaderboard() {
+      const tbody = document.getElementById('leaderboard-body');
+      tbody.innerHTML = '';
+
+      const currentGroup = document.getElementById('group-select').value;
+      const modeTextMap = { 'spelling': '單詞聽寫', 'matching': '詞義配對', 'sentence': '句型填空' };
+      const currentModeText = modeTextMap[currentMode] || currentMode;
+
+      const titleElem = document.querySelector('#leaderboard-section h4');
+      if (titleElem) {
+        titleElem.innerText = `🏆 排行榜 (${currentModeText} - ${currentGroup})`;
+      }
+
+      const filteredLeaderboard = localLeaderboard.filter(item => {
+        return item.group === currentGroup && item.mode === currentModeText;
+      });
+
+      filteredLeaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
+
+      if (filteredLeaderboard.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:#999; padding:15px;">此分類（${currentModeText} - ${currentGroup}）暫無成績記錄</td></tr>`;
+        return;
+      }
+
+      filteredLeaderboard.forEach((item, index) => {
+        const tr = document.createElement('tr');
+        let rankBadge = index + 1;
+        if (index === 0) rankBadge = '🥇 1';
+        else if (index === 1) rankBadge = '🥈 2';
+        else if (index === 2) rankBadge = '🥉 3';
+
+        tr.innerHTML = `
+          <td>${rankBadge}</td>
+          <td>${item.name}</td>
+          <td><b>${item.score}</b> 分</td>
+          <td>${formatTime(item.time)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openLeaderboard() {
+      const score = calculateScore();
+      const currentGroup = document.getElementById('group-select').value;
+      const modeTextMap = { 'spelling': '單詞聽寫', 'matching': '詞義配對', 'sentence': '句型填空' };
+      const currentModeText = modeTextMap[currentMode] || currentMode;
+
+      document.getElementById('final-score-desc').innerText = `【${currentModeText} - ${currentGroup}】得分：${score} 分`;
+      
+      renderLeaderboard();
+      document.getElementById('leaderboard-modal').style.display = 'flex';
+    }
+
+    function closeLeaderboard() {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    }
+
+    function submitScore() {
+  const nameInput = document.getElementById('user-name');
+  const seatInput = document.getElementById('user-seat');
+  
+  const name = nameInput.value.trim();
+  const seat = seatInput.value.trim();
+
+  if (!name || !seat) {
+    alert('請完整輸入姓名與班號！');
+    return;
+  }
+
+  const submitBtn = document.getElementById('submit-score-btn');
+  submitBtn.disabled = true;
+  submitBtn.innerText = "上傳中...";
+
+  const score = calculateScore();
+  const modeTextMap = { 'spelling': '單詞聽寫', 'matching': '詞義配對', 'sentence': '句型填空' };
+  const currentModeText = modeTextMap[currentMode] || currentMode;
+  const currentGroup = document.getElementById('group-select').value;
+
+  const payload = {
+    name: name,
+    seat: seat,
+    group: currentGroup,
+    mode: currentModeText,
+    score: score,
+    time: secondsElapsed,
+    timestamp: new Date().toLocaleString()
+  };
+
+  // 本地排行榜紀錄
+  localLeaderboard.push({ ...payload, name: `${name} (${seat}號)` });
+  localStorage.setItem('f2_cet_leaderboard', JSON.stringify(localLeaderboard));
+  renderLeaderboard();
+
+  // ⚠️ 請確保這裡替換成你部署獲取的網址
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwO46107RBjAv5D5iZ-MW4MR5jd9w0otUOo4S1RXnP2cXh067XLs-FB7XEM-__ouXr/exec"; 
+
+  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE")) {
+    alert('未設定 Google Apps Script 網址，成績僅儲存於本地。');
+    submitBtn.disabled = false;
+    submitBtn.innerText = "提交成績並同步 Google Sheet";
+    return;
+  }
+
+  // 使用 text/plain 避免觸發複雜跨網域預檢(Preflight)，提高上傳成功率
+  fetch(GOOGLE_SCRIPT_URL, {
+    method: 'POST',
+    type: 'no-cors',
+    body: JSON.stringify(payload)
+  })
+  .then(() => {
+    alert('成績已成功同步上傳至 Google Sheet！');
+    nameInput.value = '';
+    seatInput.value = '';
+  })
+  .catch(err => {
+    alert('上傳發生錯誤，請檢查網路。資料已儲存於本地。');
+  })
+  .finally(() => {
+    submitBtn.disabled = false;
+    submitBtn.innerText = "提交成績並同步 Google Sheet";
+  });
+}
+
+  </script>
+</body>
+</html>
