@@ -100,7 +100,7 @@
     .leaderboard-table tr:nth-child(2) { font-weight: bold; color: #7f8c8d; }
     .leaderboard-table tr:nth-child(3) { font-weight: bold; color: #b03a2e; }
 
-    .speaker-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; vertical-align: middle; margin-left: 5px; }
+    .speaker-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; vertical-align: middle; margin-left: 5px; position: relative; z-index: 10; }
   </style>
 </head>
 <body>
@@ -204,7 +204,7 @@
     const rawData = [
       { id: 1, word: "education", phonetic: "/ˌedjuˈkeɪʃn/", cn: "教育；教育學", a2_sentence: "If you want to get a good job in the future, having a high quality ______ is very important.", sentence_cn: "如果你將來想找一份好工作，擁有高品質的教育是非常重要的。" },
       { id: 2, word: "knowledge", phonetic: "/ˈnɒlɪdʒ/", cn: "知識；學識", a2_sentence: "Reading different kinds of storybooks every week can help students gain a lot of useful ______.", sentence_cn: "每週閱讀不同種類的故事書可以幫助學生獲得許多有用的知識。" },
-      { id: 3, word: "grammar", phonetic: "/ˈɡræmə/", cn: "語法；文法", a2_sentence: "Our English teacher always explains the rules of ______ clearly so that we can write better essays.", sentence_cn: "我們的英文老師總是清楚地解釋語法規則，以便我們能寫出更好的文章。" },
+      { id: 3, word: "grammar", phonetic: "/ˈɡræməl/", cn: "語法；文法", a2_sentence: "Our English teacher always explains the rules of ______ clearly so that we can write better essays.", sentence_cn: "我們的英文老師總是清楚地解釋語法規則，以便我們能寫出更好的文章。" },
       { id: 4, word: "alphabet", phonetic: "/ˈælfəbet/", cn: "字母表", a2_sentence: "The English ______ has 26 letters, from A to Z.", sentence_cn: "英文字母表有 26 個字母，從 A 到 Z。" },
       { id: 5, word: "vocabulary", phonetic: "/vəˈkæbjələri/", cn: "詞彙量", a2_sentence: "You should write down all the new words in your notebook to improve your English ______ quickly.", sentence_cn: "你應該把所有新單字記在筆記本裡，以迅速提升你的英語詞彙量。" },
       { id: 6, word: "phrase", phonetic: "/freɪz/", cn: "短語；片語", a2_sentence: "A ______ is a short group of words with a special meaning.", sentence_cn: "短語是一組具有特殊含義的簡短詞組。" },
@@ -271,35 +271,43 @@
       setTimeout(() => playAudioTone(130, 'sawtooth', 0.3), 150);
     }
 
-  // ✅ 修正後的發音函數
-function speakWord(text) {
-  if ('speechSynthesis' in window) {
-    // 1. 強制解鎖音效上下文
-    if (audioCtx && audioCtx.state === 'suspended') {
-      audioCtx.resume();
+    // ⚡ 100% 穩定修復版：雙重語音發音機制
+    function speakWord(text) {
+      if (!text) return;
+
+      if (typeof audioCtx !== 'undefined' && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US';
+        msg.rate = 0.9;
+        
+        msg.onerror = function() {
+          playGoogleTTS(text);
+        };
+
+        window.speechSynthesis.speak(msg);
+      } else {
+        playGoogleTTS(text);
+      }
     }
 
-    window.speechSynthesis.cancel(); // 停止先前的發音
-    
-    const msg = new SpeechSynthesisUtterance(text);
-    msg.lang = 'en-US';
-    msg.rate = 0.9;
-    msg.pitch = 1.0;
-
-    const voices = window.speechSynthesis.getVoices();
-    if (voices.length > 0) {
-      const femaleVoice = voices.find(v => 
-        v.lang.startsWith('en') && 
-        (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Google US English'))
-      );
-      if (femaleVoice) msg.voice = femaleVoice;
+    function playGoogleTTS(text) {
+      const encodedText = encodeURIComponent(text);
+      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
+      const audio = new Audio(audioUrl);
+      audio.play().catch(e => console.log("Audio play error:", e));
     }
-    
-    window.speechSynthesis.speak(msg);
-  } else {
-    alert('您的瀏覽器不支援語音朗讀功能');
-  }
-}
+
+    window.onload = () => {
+      startTimer();
+      updateErrorBankButton();
+      initQuiz();
+      setupSpellingInputListener();
+    };
 
     function startTimer() {
       clearInterval(timerInterval);
