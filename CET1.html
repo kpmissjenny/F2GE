@@ -62,7 +62,7 @@
     .letter-box.correct { border-bottom-color: var(--success-color); color: var(--success-color); }
     .letter-box.wrong { border-bottom-color: var(--error-color); color: var(--error-color); }
 
-    /* 正確的隱藏輸入框定位：保持在視窗內但透明，確保 iOS / Android 能觸發鍵盤 */
+    /* 隱藏輸入框定位：保持在視窗內但透明，確保 iOS / Android 能觸發鍵盤 */
     #hidden-input { 
       position: absolute; 
       opacity: 0; 
@@ -100,7 +100,7 @@
     .leaderboard-table tr:nth-child(2) { font-weight: bold; color: #7f8c8d; }
     .leaderboard-table tr:nth-child(3) { font-weight: bold; color: #b03a2e; }
 
-    .speaker-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; vertical-align: middle; margin-left: 5px; }
+    .speaker-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; vertical-align: middle; margin-left: 5px; position: relative; z-index: 10; }
   </style>
 </head>
 <body>
@@ -205,9 +205,9 @@
       { id: 1, word: "education", phonetic: "/ˌedjuˈkeɪʃn/", cn: "教育；教育學", a2_sentence: "If you want to get a good job in the future, having a high quality ______ is very important.", sentence_cn: "如果你將來想找一份好工作，擁有高品質的教育是非常重要的。" },
       { id: 2, word: "knowledge", phonetic: "/ˈnɒlɪdʒ/", cn: "知識；學識", a2_sentence: "Reading different kinds of storybooks every week can help students gain a lot of useful ______.", sentence_cn: "每週閱讀不同種類的故事書可以幫助學生獲得許多有用的知識。" },
       { id: 3, word: "grammar", phonetic: "/ˈɡræmə/", cn: "語法；文法", a2_sentence: "Our English teacher always explains the rules of ______ clearly so that we can write better essays.", sentence_cn: "我們的英文老師總是清楚地解釋語法規則，以便我們能寫出更好的文章。" },
-      { id: 4, word: "alphabet", phonetic: "/ˈælfəbet/", cn: "字母表", a2_sentence: "Young children usually learn how to sing the English ______ song before they start writing words.", sentence_cn: "幼兒在開始寫單字之前，通常會先學習唱英文字母表歌曲。" },
+      { id: 4, word: "alphabet", phonetic: "/ˈælfəbet/", cn: "字母表", a2_sentence: "The English ______ has 26 letters, from A to Z.", sentence_cn: "英文字母表有 26 個字母，從 A 到 Z。" },
       { id: 5, word: "vocabulary", phonetic: "/vəˈkæbjələri/", cn: "詞彙量", a2_sentence: "You should write down all the new words in your notebook to improve your English ______ quickly.", sentence_cn: "你應該把所有新單字記在筆記本裡，以迅速提升你的英語詞彙量。" },
-      { id: 6, word: "phrase", phonetic: "/freɪz/", cn: "短語；片語", a2_sentence: "A ______ is a short group of words with a special meaning.", sentence_cn: "短語是一組具有特殊含義的簡短詞組。" }
+      { id: 6, word: "phrase", phonetic: "/freɪz/", cn: "短語；片語", a2_sentence: "A ______ is a short group of words with a special meaning.", sentence_cn: "短語是一組具有特殊含義的簡短詞組。" },
       { id: 7, word: "language", phonetic: "/ˈlæŋɡwɪdʒ/", cn: "語言", a2_sentence: "Learning to speak a foreign ______ fluently takes a lot of time and practice every single day.", sentence_cn: "流利地學說一門外語每天都需要花費大量的時間與練習。" },
       { id: 8, word: "accent", phonetic: "/ˈæksent/", cn: "口音；腔調", a2_sentence: "Even though he comes from Canada, he speaks English with a very strong local British ______.", sentence_cn: "儘管他來自加拿大，但他說英語時帶著濃厚的英國當地口音。" },
       { id: 9, word: "dialect", phonetic: "/ˈdaɪəlekt/", cn: "方言", a2_sentence: "Old people in this small village prefer to speak their own traditional ______ rather than standard English.", sentence_cn: "這個小村莊的老人更喜歡說他們自己的傳統方言，而不是標準英語。" },
@@ -221,7 +221,7 @@
       { id: 17, word: "economic", phonetic: "/ˌiːkəˈnɒmɪk/", cn: "經濟上的", a2_sentence: "The government is trying hard to fix the serious ______ problems that the country is facing right now.", sentence_cn: "政府正努力解決國家目前所面臨的嚴重經濟問題。" },
       { id: 18, word: "economical", phonetic: "/ˌiːkəˈnɒmikl/", cn: "省錢的；實惠的", a2_sentence: "Taking the bus to school every morning is much more ______ than going by taxi with your friends.", sentence_cn: "每天早上坐公車上學比和朋友一起打計程車要劃算省錢得多。" },
       { id: 19, word: "historical", phonetic: "/hɪˈstɒrɪkl/", cn: "歷史的", a2_sentence: "We visited many old ______ places to learn about life in the past.", sentence_cn: "我們參觀了許多古老的歷史景點，以了解過去的生活。" },
-      { id: 20, word: "agriculture", phonetic: "/ˈæɡrɪkʌltʃə/", cn: "農業", a2_sentence: "Farmers use modern ______ methods to grow fresh crops and food.", sentence_cn: "農夫們使用現代農業方法來種植新鮮的農作物和食物。" }
+      { id: 20, word: "agriculture", phonetic: "/ˈæɡrɪkʌltʃə/", cn: "農業", a2_sentence: "Farmers use modern ______ methods to grow fresh crops and food.", sentence_cn: "農夫們使用現代農業方法來種植新鮮的農作物和食物。" },
       { id: 21, word: "geography", phonetic: "/dʒiˈɒɡrəfi/", cn: "地理學", a2_sentence: "We learned about different climate zones and rivers in our ______ class this morning.", sentence_cn: "今天早上的地理課上，我們學習了不同的氣候帶和河流。" },
       { id: 22, word: "biology", phonetic: "/baɪˈɒlədʒi/", cn: "生物學", a2_sentence: "In ______ class, students used microscopes to observe living cells.", sentence_cn: "在生物課上，學生們使用顯微鏡觀察活細胞。" },
       { id: 23, word: "chemistry", phonetic: "/ˈkemɪstri/", cn: "化學", a2_sentence: "We mix different liquids to test chemical reactions in our ______ class.", sentence_cn: "我們在化學課上混合不同的液體來測試化學反應。" },
@@ -229,6 +229,7 @@
       { id: 25, word: "literature", phonetic: "/ˈlɪtrətʃə/", cn: "文學", a2_sentence: "In our English ______ class, we read famous stories and plays.", sentence_cn: "在我們的英語文學課上，我們閱讀著名的故事和劇本。" },
       { id: 26, word: "philosophy", phonetic: "/fəˈlɒsəfi/", cn: "哲學", a2_sentence: "______ asks deep questions about life, truth, and human thinking.", sentence_cn: "哲學探討關於生命、真理和人類思考的深刻問題。" },
       { id: 27, word: "psychology", phonetic: "/saɪˈkɒlədʒi/", cn: "心理學", a2_sentence: "______ is the study of how the human mind and emotions work.", sentence_cn: "心理學是研究人類心智和情緒如何運作的學科。" }
+    ];
 
     let currentMode = 'spelling';
     let isErrorBankMode = false;
@@ -243,20 +244,30 @@
     let timerInterval = null;
     let secondsElapsed = 0;
 
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    // 音效中心（僅宣告一次）
+    let audioCtx = null;
+    function getAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
 
     function playAudioTone(freq, type, duration) {
       try {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
+        const ctx = getAudioContext();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
         osc.type = type;
         osc.frequency.value = freq;
         osc.connect(gain);
-        gain.connect(audioCtx.destination);
+        gain.connect(ctx.destination);
         osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
-        osc.stop(audioCtx.currentTime + duration);
+        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
+        osc.stop(ctx.currentTime + duration);
       } catch(e) {}
     }
 
@@ -270,26 +281,32 @@
       setTimeout(() => playAudioTone(130, 'sawtooth', 0.3), 150);
     }
 
+    // ⚡ 雙重發音機制
     function speakWord(text) {
+      if (!text) return;
+      getAudioContext();
+
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
-        msg.rate = 0.95;
-        msg.pitch = 1.0;
+        msg.rate = 0.9;
+        
+        msg.onerror = function() {
+          playGoogleTTS(text);
+        };
 
-        const voices = window.speechSynthesis.getVoices();
-        const femaleVoice = voices.find(v => 
-          v.lang.startsWith('en') && 
-          (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Victoria') || v.name.includes('Google US English'))
-        );
-        if (femaleVoice) msg.voice = femaleVoice;
         window.speechSynthesis.speak(msg);
+      } else {
+        playGoogleTTS(text);
       }
     }
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    function playGoogleTTS(text) {
+      const encodedText = encodeURIComponent(text);
+      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
+      const audio = new Audio(audioUrl);
+      audio.play().catch(e => console.log("Audio play error:", e));
     }
 
     window.onload = () => {
@@ -435,7 +452,7 @@
         spellingArea.style.display = 'block';
         optionsArea.style.display = 'none';
 
-        document.getElementById('prompt-area').innerHTML = `${item.cn} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('prompt-area').innerHTML = `${item.cn} <button class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
         document.getElementById('phonetic-area').innerText = item.phonetic;
 
         const container = document.getElementById('letters-container');
@@ -461,7 +478,7 @@
         spellingArea.style.display = 'none';
         optionsArea.style.display = 'grid';
 
-        document.getElementById('prompt-area').innerHTML = `${item.word} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('prompt-area').innerHTML = `${item.word} <button class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
         document.getElementById('phonetic-area').innerText = item.phonetic;
 
         renderFixedOptions(item, 'cn');
@@ -527,7 +544,6 @@
       });
     }
 
-    // 正確的打字監聽邏輯：將隱藏輸入框打的字實時更新到字母底線
     function setupSpellingInputListener() {
       const input = document.getElementById('hidden-input');
       if (!input) return;
@@ -547,7 +563,6 @@
 
         refreshSpellingUI(val, targetWord);
 
-        // 打字完成判斷
         if (val.length === targetWord.length) {
           if (val === targetWord) {
             playCorrectSound();
@@ -559,7 +574,6 @@
         }
       });
 
-      // 防鍵盤遮擋：聚焦時自動平滑上滑
       input.addEventListener('focus', () => {
         setTimeout(() => {
           const card = document.querySelector('.card');
@@ -570,7 +584,6 @@
       });
     }
 
-    // 聚焦輸入框
     function focusInput() {
       if (currentMode === 'spelling') {
         const input = document.getElementById('hidden-input');
@@ -689,71 +702,70 @@
     }
 
     function submitScore() {
-  const nameInput = document.getElementById('user-name');
-  const seatInput = document.getElementById('user-seat');
-  
-  const name = nameInput.value.trim();
-  const seat = seatInput.value.trim();
+      const nameInput = document.getElementById('user-name');
+      const seatInput = document.getElementById('user-seat');
+      
+      const name = nameInput.value.trim();
+      const seat = seatInput.value.trim();
 
-  if (!name || !seat) {
-    alert('請完整輸入姓名與班號！');
-    return;
-  }
+      if (!name || !seat) {
+        alert('請完整輸入姓名與班號！');
+        return;
+      }
 
-  const submitBtn = document.getElementById('submit-score-btn');
-  submitBtn.disabled = true;
-  submitBtn.innerText = "上傳中...";
+      const submitBtn = document.getElementById('submit-score-btn');
+      submitBtn.disabled = true;
+      submitBtn.innerText = "上傳中...";
 
-  const score = calculateScore();
-  const modeTextMap = { 'spelling': '單詞聽寫', 'matching': '詞義配對', 'sentence': '句型填空' };
-  const currentModeText = modeTextMap[currentMode] || currentMode;
-  const currentGroup = document.getElementById('group-select').value;
+      const score = calculateScore();
+      const modeTextMap = { 'spelling': '單詞聽寫', 'matching': '詞義配對', 'sentence': '句型填空' };
+      const currentModeText = modeTextMap[currentMode] || currentMode;
+      const currentGroup = document.getElementById('group-select').value;
 
-  const payload = {
-    name: name,
-    seat: seat,
-    group: currentGroup,
-    mode: currentModeText,
-    score: score,
-    time: secondsElapsed,
-    timestamp: new Date().toLocaleString()
-  };
+      const payload = {
+        name: name,
+        seat: seat,
+        group: currentGroup,
+        mode: currentModeText,
+        score: score,
+        time: secondsElapsed,
+        timestamp: new Date().toLocaleString()
+      };
 
-  // 本地排行榜紀錄
-  localLeaderboard.push({ ...payload, name: `${name} (${seat}號)` });
-  localStorage.setItem('f2_cet_leaderboard', JSON.stringify(localLeaderboard));
-  renderLeaderboard();
+      localLeaderboard.push({ ...payload, name: `${name} (${seat}號)` });
+      localStorage.setItem('f2_cet_leaderboard', JSON.stringify(localLeaderboard));
+      renderLeaderboard();
 
-  // ⚠️ 請確保這裡替換成你部署獲取的網址
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwO46107RBjAv5D5iZ-MW4MR5jd9w0otUOo4S1RXnP2cXh067XLs-FB7XEM-__ouXr/exec"; 
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxwO46107RBjAv5D5iZ-MW4MR5jd9w0otUOo4S1RXnP2cXh067XLs-FB7XEM-__ouXr/exec"; 
 
-  if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE")) {
-    alert('未設定 Google Apps Script 網址，成績僅儲存於本地。');
-    submitBtn.disabled = false;
-    submitBtn.innerText = "提交成績並同步 Google Sheet";
-    return;
-  }
+      if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("YOUR_GOOGLE")) {
+        alert('未設定 Google Apps Script 網址，成績僅儲存於本地。');
+        submitBtn.disabled = false;
+        submitBtn.innerText = "提交成績並同步 Google Sheet";
+        return;
+      }
 
-  // 使用 text/plain 避免觸發複雜跨網域預檢(Preflight)，提高上傳成功率
-  fetch(GOOGLE_SCRIPT_URL, {
-    method: 'POST',
-    type: 'no-cors',
-    body: JSON.stringify(payload)
-  })
-  .then(() => {
-    alert('成績已成功同步上傳至 Google Sheet！');
-    nameInput.value = '';
-    seatInput.value = '';
-  })
-  .catch(err => {
-    alert('上傳發生錯誤，請檢查網路。資料已儲存於本地。');
-  })
-  .finally(() => {
-    submitBtn.disabled = false;
-    submitBtn.innerText = "提交成績並同步 Google Sheet";
-  });
-}
-
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {
+          'Content-Type': 'text/plain;charset=utf-8'
+        },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        alert('成績已成功同步上傳至 Google Sheet！');
+        nameInput.value = '';
+        seatInput.value = '';
+      })
+      .catch(err => {
+        alert('上傳發生錯誤，請檢查網路。資料已儲存於本地。');
+      })
+      .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "提交成績並同步 Google Sheet";
+      });
+    }
   </script>
 </body>
 </html>
