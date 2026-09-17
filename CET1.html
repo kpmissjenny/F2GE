@@ -271,34 +271,35 @@
       setTimeout(() => playAudioTone(130, 'sawtooth', 0.3), 150);
     }
 
-    function speakWord(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const msg = new SpeechSynthesisUtterance(text);
-        msg.lang = 'en-US';
-        msg.rate = 0.95;
-        msg.pitch = 1.0;
-
-        const voices = window.speechSynthesis.getVoices();
-        const femaleVoice = voices.find(v => 
-          v.lang.startsWith('en') && 
-          (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Victoria') || v.name.includes('Google US English'))
-        );
-        if (femaleVoice) msg.voice = femaleVoice;
-        window.speechSynthesis.speak(msg);
-      }
+  // ✅ 修正後的發音函數
+function speakWord(text) {
+  if ('speechSynthesis' in window) {
+    // 1. 強制解鎖音效上下文
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
     }
 
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
-    }
+    window.speechSynthesis.cancel(); // 停止先前的發音
+    
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = 'en-US';
+    msg.rate = 0.9;
+    msg.pitch = 1.0;
 
-    window.onload = () => {
-      startTimer();
-      updateErrorBankButton();
-      initQuiz();
-      setupSpellingInputListener();
-    };
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) {
+      const femaleVoice = voices.find(v => 
+        v.lang.startsWith('en') && 
+        (v.name.includes('Female') || v.name.includes('Samantha') || v.name.includes('Zira') || v.name.includes('Google US English'))
+      );
+      if (femaleVoice) msg.voice = femaleVoice;
+    }
+    
+    window.speechSynthesis.speak(msg);
+  } else {
+    alert('您的瀏覽器不支援語音朗讀功能');
+  }
+}
 
     function startTimer() {
       clearInterval(timerInterval);
@@ -436,7 +437,7 @@
         spellingArea.style.display = 'block';
         optionsArea.style.display = 'none';
 
-        document.getElementById('prompt-area').innerHTML = `${item.cn} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('prompt-area').innerHTML = `${item.cn} <button class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
         document.getElementById('phonetic-area').innerText = item.phonetic;
 
         const container = document.getElementById('letters-container');
@@ -462,7 +463,7 @@
         spellingArea.style.display = 'none';
         optionsArea.style.display = 'grid';
 
-        document.getElementById('prompt-area').innerHTML = `${item.word} <button class="speaker-btn" onclick="speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('prompt-area').innerHTML = `${item.word} <button class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
         document.getElementById('phonetic-area').innerText = item.phonetic;
 
         renderFixedOptions(item, 'cn');
