@@ -62,7 +62,7 @@
     .letter-box.correct { border-bottom-color: var(--success-color); color: var(--success-color); }
     .letter-box.wrong { border-bottom-color: var(--error-color); color: var(--error-color); }
 
-    /* 隱藏輸入框定位：保持在視窗內但透明，確保 iOS / Android 能觸發鍵盤 */
+    /* 隱藏輸入框 */
     #hidden-input { 
       position: absolute; 
       opacity: 0; 
@@ -244,72 +244,18 @@
     let timerInterval = null;
     let secondsElapsed = 0;
 
-    // 音效中心（僅宣告一次）
-    let audioCtx = null;
-    function getAudioContext() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      return audioCtx;
-    }
-
-    function playAudioTone(freq, type, duration) {
-      try {
-        const ctx = getAudioContext();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + duration);
-        osc.stop(ctx.currentTime + duration);
-      } catch(e) {}
-    }
-
-    function playCorrectSound() {
-      playAudioTone(523.25, 'sine', 0.15);
-      setTimeout(() => playAudioTone(659.25, 'sine', 0.3), 100);
-    }
-
-    function playWrongSound() {
-      playAudioTone(150, 'sawtooth', 0.15);
-      setTimeout(() => playAudioTone(130, 'sawtooth', 0.3), 150);
-    }
-
-    // ⚡ 雙重發音機制
     function speakWord(text) {
       if (!text) return;
-      getAudioContext();
-
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
         const msg = new SpeechSynthesisUtterance(text);
         msg.lang = 'en-US';
         msg.rate = 0.9;
-        
-        msg.onerror = function() {
-          playGoogleTTS(text);
-        };
-
         window.speechSynthesis.speak(msg);
-      } else {
-        playGoogleTTS(text);
       }
     }
 
-    function playGoogleTTS(text) {
-      const encodedText = encodeURIComponent(text);
-      const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
-      const audio = new Audio(audioUrl);
-      audio.play().catch(e => console.log("Audio play error:", e));
-    }
-
-    window.onload = () => {
+    window.onload = function() {
       startTimer();
       updateErrorBankButton();
       initQuiz();
@@ -471,8 +417,6 @@
 
         const input = document.getElementById('hidden-input');
         input.value = savedVal;
-        focusInput();
-        speakWord(item.word);
 
       } else if (currentMode === 'matching') {
         spellingArea.style.display = 'none';
@@ -514,10 +458,8 @@
         btn.onclick = () => {
           userAnswers[currentIndex] = opt;
           if (opt === currentItem[key]) {
-            playCorrectSound();
             if (isErrorBankMode) removeFromErrorBank(currentItem);
           } else {
-            playWrongSound();
             addToErrorBank(currentItem);
           }
           loadQuestion();
@@ -565,22 +507,11 @@
 
         if (val.length === targetWord.length) {
           if (val === targetWord) {
-            playCorrectSound();
             if (isErrorBankMode) removeFromErrorBank(quizList[currentIndex]);
           } else {
-            playWrongSound();
             addToErrorBank(quizList[currentIndex]);
           }
         }
-      });
-
-      input.addEventListener('focus', () => {
-        setTimeout(() => {
-          const card = document.querySelector('.card');
-          if (card) {
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }, 300);
       });
     }
 
