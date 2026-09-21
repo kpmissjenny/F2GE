@@ -509,8 +509,8 @@ function renderLobbyLeaderboard() {
   const tbody = document.getElementById('lobby-leaderboard-body');
   tbody.innerHTML = '';
 
-  // 1. 取得當前選取的範圍與模式
-  const selectedGroupVal = document.getElementById('group-select').value.trim(); // 例如 "1-10" 或 "1-25 全範圍"
+  // 1. 取得當前選取的下拉選單值與模式
+  const selectedGroupVal = document.getElementById('group-select').value.trim(); 
   const modeTextMap = { 
     'spelling': '聽寫拼字', 
     'matching': '中文配對', 
@@ -518,44 +518,64 @@ function renderLobbyLeaderboard() {
   };
   const currentModeText = modeTextMap[selectedMode];
 
-  // 輔助函數：提取分組的關鍵數字標籤 (例如把 "1 - 10 詞 (instrument...)" 轉成 "1-10")
-  function getGroupKey(str) {
-    if (!str) return '';
-    let s = String(str).replace(/\s+/g, ''); // 移除所有空白
-    if (s.includes('1-10')) return '1-10';
-    if (s.includes('11-20')) return '11-20';
-    if (s.includes('21-25')) return '21-25';
-    if (s.includes('1-25')) return '1-25';
-    return s;
+  // 超強容錯的組別判斷函數
+  function matchGroup(sheetGroup, targetSelectVal) {
+    if (!sheetGroup) return false;
+    
+    // 轉為字串並統一清理（轉小寫、去掉所有空格、去掉全形/半形括號等）
+    let s = String(sheetGroup).toLowerCase().replace(/[\s\(\)\（\）\~～]/g, '');
+    let target = String(targetSelectVal).toLowerCase().replace(/[\s\(\)\（\）\~～]/g, '');
+
+    // 情況 A：如果選的是全範圍 (1-25)
+    if (target.includes('1-25')) {
+      return s.includes('1-25') || s.includes('全範圍') || s.includes('all');
+    }
+
+    // 情況 B：判斷 21-25
+    if (target.includes('21-25')) {
+      return s.includes('21-25');
+    }
+
+    // 情況 C：判斷 11-20
+    if (target.includes('11-20')) {
+      return s.includes('11-20');
+    }
+
+    // 情況 D：判斷 1-10（必須排除包含 11-20 或 21-25 的情況）
+    if (target.includes('1-10')) {
+      return s.includes('1-10') && !s.includes('11-20') && !s.includes('21-25');
+    }
+
+    return s === target;
   }
 
-  const targetGroupKey = getGroupKey(selectedGroupVal);
-
-  // 2. 進行智慧彈性比對
+  // 2. 彈性過濾
   const filtered = globalLeaderboard.filter(i => {
-    const itemGroupKey = getGroupKey(i.group);
+    // 判斷組別是否吻合
+    const isGroupMatch = matchGroup(i.group, selectedGroupVal);
     
-    // 清理模式名稱的空白
-    const itemMode = String(i.mode || '').replace(/\s+/g, '');
-    const targetMode = currentModeText.replace(/\s+/g, '');
+    // 判斷模式是否吻合（同時支援中文「聽寫拼字/中文配對/例句填空」與英文「spelling/matching/sentence」）
+    const itemMode = String(i.mode || '').trim().toLowerCase();
+    const targetMode = currentModeText.toLowerCase();
+    const isModeMatch = (itemMode === targetMode) || (itemMode === selectedMode.toLowerCase());
 
-    // 判斷組別是否吻合 (例如 1-10 === 1-10)
-    const groupMatch = (itemGroupKey === targetGroupKey);
-    // 判斷模式是否吻合 (支援中文名稱 "聽寫拼字" 或英文 "spelling")
-    const modeMatch = (itemMode === targetMode) || (itemMode === selectedMode);
-
-    return groupMatch && modeMatch;
+    return isGroupMatch && isModeMatch;
   });
-  
-  // 3. 按照分數（高到低）與時間（少到多）排序
-  filtered.sort((a, b) => Number(b.score) - Number(a.score) || Number(a.time) - Number(b.time));
+
+  // 🛠️ 開發者除錯日誌：可在瀏覽器按 F12 -> Console 查看所有抓到的原始資料與過濾結果
+  console.log("【除錯資訊】雲端原始資料數：", globalLeaderboard.length);
+  console.log("【除錯資訊】當前選擇組別：", selectedGroupVal, "，模式：", currentModeText);
+  console.log("【除錯資訊】過濾後成功匹配筆數：", filtered.length);
+
+  // 3. 排序：高分在前，同分則用時少在前
+  filtered.sort((a, b) => Number(b.score) - Number(a.score) || Number(a.time) - Number(a.time));
 
   if (filtered.length === 0) {
     tbody.innerHTML = `<tr><td colspan="4" style="color:#94a3b8; padding:12px;">該分類無紀錄，成為第一個挑戰者吧！</td></tr>`;
     return;
   }
 
-  // 4. 渲染前 10 名
+  // 4. 渲染排行榜前 10 名
   filtered.slice(0, 10).forEach((item, index) => {
     const tr = document.createElement('tr');
     let badge = index + 1;
