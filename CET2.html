@@ -509,7 +509,8 @@ function renderLobbyLeaderboard() {
   const tbody = document.getElementById('lobby-leaderboard-body');
   tbody.innerHTML = '';
 
-  const currentGroup = document.getElementById('group-select').value.trim();
+  // 1. 取得當前選取的範圍與模式
+  const selectedGroupVal = document.getElementById('group-select').value.trim(); // 例如 "1-10" 或 "1-25 全範圍"
   const modeTextMap = { 
     'spelling': '聽寫拼字', 
     'matching': '中文配對', 
@@ -517,14 +518,36 @@ function renderLobbyLeaderboard() {
   };
   const currentModeText = modeTextMap[selectedMode];
 
-  // 強化比對邏輯：將前後空格去除，確保文字完全吻合
+  // 輔助函數：提取分組的關鍵數字標籤 (例如把 "1 - 10 詞 (instrument...)" 轉成 "1-10")
+  function getGroupKey(str) {
+    if (!str) return '';
+    let s = String(str).replace(/\s+/g, ''); // 移除所有空白
+    if (s.includes('1-10')) return '1-10';
+    if (s.includes('11-20')) return '11-20';
+    if (s.includes('21-25')) return '21-25';
+    if (s.includes('1-25')) return '1-25';
+    return s;
+  }
+
+  const targetGroupKey = getGroupKey(selectedGroupVal);
+
+  // 2. 進行智慧彈性比對
   const filtered = globalLeaderboard.filter(i => {
-    const itemGroup = String(i.group || '').trim();
-    const itemMode = String(i.mode || '').trim();
-    return itemGroup === currentGroup && itemMode === currentModeText;
+    const itemGroupKey = getGroupKey(i.group);
+    
+    // 清理模式名稱的空白
+    const itemMode = String(i.mode || '').replace(/\s+/g, '');
+    const targetMode = currentModeText.replace(/\s+/g, '');
+
+    // 判斷組別是否吻合 (例如 1-10 === 1-10)
+    const groupMatch = (itemGroupKey === targetGroupKey);
+    // 判斷模式是否吻合 (支援中文名稱 "聽寫拼字" 或英文 "spelling")
+    const modeMatch = (itemMode === targetMode) || (itemMode === selectedMode);
+
+    return groupMatch && modeMatch;
   });
   
-  // 按照分數（高到低）與時間（少到多）排序
+  // 3. 按照分數（高到低）與時間（少到多）排序
   filtered.sort((a, b) => Number(b.score) - Number(a.score) || Number(a.time) - Number(b.time));
 
   if (filtered.length === 0) {
@@ -532,6 +555,7 @@ function renderLobbyLeaderboard() {
     return;
   }
 
+  // 4. 渲染前 10 名
   filtered.slice(0, 10).forEach((item, index) => {
     const tr = document.createElement('tr');
     let badge = index + 1;
