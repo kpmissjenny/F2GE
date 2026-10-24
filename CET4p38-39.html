@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>F2 CET P.38-39 Practice</title>
+  <style>
+    :root {
+      --primary-color: #8b5cf6;
+      --primary-hover: #7c3aed;
+      --secondary-color: #a78bfa;
+      --accent-color: #c4b5fd;
+      --success-color: #10b981;
+      --danger-color: #ef4444;
+      --bg-gradient: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #ddd6fe 100%);
+      --card-bg: rgba(255, 255, 255, 0.94);
+      --text-color: #1e293b;
+      --border-radius: 24px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Comic Sans MS", "Chalkboard SE", "YuGothic", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    
+    body { 
+      background: var(--bg-gradient); 
+      background-attachment: fixed;
+      color: var(--text-color);
+      max-width: 600px; 
+      margin: 0 auto; 
+      padding: 18px 15px;
+      min-height: 100vh;
+    }
+
+    h1 { 
+      text-align: center; 
+      font-size: 2rem; 
+      margin-bottom: 20px; 
+      color: #7c3aed;
+      text-shadow: 2px 2px 0px #ffffff, 4px 4px 0px #ddd6fe;
+      letter-spacing: 1px;
+    }
+
+    h2 { 
+      font-size: 1.15rem; 
+      margin-bottom: 14px; 
+      color: #7c3aed; 
+      border-bottom: 2px dashed #ddd6fe; 
+      padding-bottom: 8px; 
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-box {
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 3px solid #ffffff;
+      border-radius: var(--border-radius);
+      padding: 22px;
+      box-shadow: 0 10px 25px rgba(139, 92, 246, 0.15);
+      margin-bottom: 18px;
+    }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; color: #5b21b6; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      background: #faf5ff;
+      border: 2px solid #ddd6fe;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      color: #1e293b;
+      outline: none;
+      transition: all 0.25s ease;
+      font-weight: bold;
+    }
+    .form-group input:focus, .form-group select:focus { 
+      border-color: var(--primary-color); 
+      background: #ffffff;
+      box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.2);
+    }
+
+    .mode-selector { display: flex; gap: 8px; margin-top: 5px; }
+    .mode-btn {
+      flex: 1;
+      padding: 12px 5px;
+      border: 2px solid #ddd6fe;
+      background: #faf5ff;
+      color: #6b21a8;
+      border-radius: 16px;
+      font-weight: bold;
+      font-size: 0.88rem;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 0 #c4b5fd;
+    }
+    .mode-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 2px 0 #c4b5fd;
+    }
+    .mode-btn.active {
+      border-color: #7c3aed;
+      background: #ede9fe;
+      color: #5b21b6;
+      box-shadow: 0 4px 0 #a78bfa;
+    }
+
+    .start-btn {
+      width: 100%;
+      padding: 15px;
+      background: linear-gradient(135deg, #a78bfa 0%, #c4b5fd 100%);
+      color: #2e1065;
+      border: 3px solid #ffffff;
+      border-radius: 20px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-shadow: 0 6px 0 #8b5cf6, 0 10px 15px rgba(139, 92, 246, 0.25);
+      margin-top: 8px;
+    }
+    .start-btn:active { 
+      transform: translateY(4px); 
+      box-shadow: 0 2px 0 #8b5cf6, 0 5px 10px rgba(139, 92, 246, 0.25);
+    }
+
+    .leaderboard-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.9rem; text-align: center; }
+    .leaderboard-table th, .leaderboard-table td { padding: 10px 4px; border-bottom: 2px dashed #ede9fe; }
+    .leaderboard-table th { background-color: #faf5ff; color: #6b21a8; border-radius: 8px; }
+    .leaderboard-table tr:nth-child(1) td { font-weight: bold; color: #d97706; }
+    .leaderboard-table tr:nth-child(2) td { font-weight: bold; color: #64748b; }
+    .leaderboard-table tr:nth-child(3) td { font-weight: bold; color: #b45309; }
+
+    #game-view { display: none; }
+
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .home-btn {
+      padding: 8px 16px;
+      background: #ffffff;
+      border: 2px solid #ddd6fe;
+      border-radius: 14px;
+      color: #6b21a8;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 3px 0 #c4b5fd;
+      transition: all 0.15s ease;
+    }
+    .home-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c4b5fd; }
+
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      background: #ffffff;
+      border: 3px solid #ddd6fe;
+      color: #1e293b;
+      padding: 12px 18px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      box-shadow: 0 4px 10px rgba(139, 92, 246, 0.1);
+    }
+
+    .word-prompt { font-size: 1.2rem; margin-bottom: 12px; font-weight: bold; text-align: center; line-height: 1.5; color: #1e293b; }
+    .phonetic { color: #7c3aed; font-size: 1.05rem; margin-bottom: 14px; text-align: center; font-family: "Lucida Sans Unicode", "Arial Unicode MS", sans-serif; font-weight: 600; }
+
+    .letters-container { display: flex; justify-content: center; gap: 8px; margin: 20px 0; flex-wrap: wrap; cursor: pointer; pointer-events: none; }
+    .letter-box { width: 36px; height: 46px; border-bottom: 4px solid #ddd6fe; font-size: 1.4rem; font-weight: bold; text-align: center; line-height: 46px; text-transform: lowercase; color: #1e293b; border-radius: 6px; }
+    .letter-box.active { border-bottom-color: var(--primary-color); background: #ede9fe; }
+    .letter-box.correct { border-bottom-color: var(--success-color); color: #15803d; background: #f0fdf4; }
+    .letter-box.wrong { border-bottom-color: var(--danger-color); color: var(--danger-color); background: #fef2f2; }
+
+    #spelling-area { position: relative; min-height: 80px; }
+    #hidden-input { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      width: 100%; 
+      height: 100%; 
+      opacity: 0.01; 
+      z-index: 10; 
+      border: none;
+      background: transparent;
+      color: transparent;
+      cursor: default;
+    }
+
+    .options-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 15px; }
+    .option-btn { 
+      padding: 14px; 
+      border: 2px solid #ddd6fe; 
+      border-radius: 16px; 
+      background: #ffffff; 
+      color: #1e293b;
+      font-size: 0.95rem; 
+      font-weight: 600;
+      text-align: left; 
+      cursor: pointer; 
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 0 #c4b5fd;
+      position: relative;
+      z-index: 10;
+    }
+    .option-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #c4b5fd; }
+    .option-btn.correct { background: #dcfce7; color: #166534; border-color: #86efac; box-shadow: 0 3px 0 #4ade80; }
+    .option-btn.wrong { background: #ffe4e6; color: #9f1239; border-color: #fca5a5; box-shadow: 0 3px 0 #f87171; }
+
+    .nav-control { display: flex; gap: 10px; margin-top: 18px; position: relative; z-index: 10; }
+    .btn { 
+      flex: 1; 
+      padding: 12px; 
+      border: none; 
+      border-radius: 16px; 
+      background: #94a3b8; 
+      color: white; 
+      font-weight: bold; 
+      cursor: pointer; 
+      text-align: center;
+      box-shadow: 0 4px 0 #64748b;
+      transition: all 0.15s ease;
+    }
+    .btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #64748b; }
+    .btn-primary { background: #8b5cf6; box-shadow: 0 4px 0 #6d28d9; }
+    .btn-primary:active { box-shadow: 0 2px 0 #6d28d9; }
+    .btn-danger { background: #f97316; box-shadow: 0 4px 0 #c2410c; }
+    .btn-danger:active { box-shadow: 0 2px 0 #c2410c; }
+    .btn-success { background: #10b981; box-shadow: 0 4px 0 #047857; }
+    .btn-success:active { box-shadow: 0 2px 0 #047857; }
+
+    .speaker-btn { 
+      background: #ede9fe; 
+      border: 2px solid #c4b5fd; 
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      font-size: 1.1rem; 
+      cursor: pointer; 
+      vertical-align: middle; 
+      margin-left: 8px; 
+      position: relative; 
+      z-index: 20; 
+      transition: transform 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .speaker-btn:active { transform: scale(0.9); }
+
+    .answer-display { 
+      margin-top: 15px; 
+      padding: 14px; 
+      background: #faf5ff; 
+      border: 2px dashed #c4b5fd; 
+      color: #5b21b6; 
+      border-radius: 16px; 
+      font-size: 0.95rem; 
+      display: none; 
+      line-height: 1.5; 
+      font-weight: 600;
+      position: relative;
+      z-index: 10;
+    }
+
+    .mistake-item {
+      background: #ffffff;
+      border: 2px solid #ddd6fe;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    .mistake-word { font-weight: bold; color: #7c3aed; font-size: 1.1rem; }
+    .mistake-cn { color: #475569; font-size: 0.95rem; margin-top: 4px; }
+    .clear-btn {
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      background: #ede9fe;
+      color: #5b21b6;
+      border: 1px solid #c4b5fd;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(6px); justify-content: center; align-items: center; z-index: 100; }
+    .modal-content { background: #ffffff; border: 4px solid #ddd6fe; padding: 28px; border-radius: 28px; width: 90%; max-width: 400px; text-align: center; color: #1e293b; box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
+  </style>
+</head>
+<body>
+
+  <!-- ==================== 首頁大廳 (LOBBY) ==================== -->
+  <div id="lobby-view">
+    <h1>🎮 F2 CET P.38-39</h1>
+
+    <div class="card-box">
+      <h2><span>👤 挑戰者資訊與模式選擇</span></h2>
+      <div class="form-group">
+        <label>姓名：</label>
+        <input type="text" id="player-name" placeholder="請輸入姓名 (例如: 張小明)">
+      </div>
+      <div class="form-group">
+        <label>班號：</label>
+        <input type="text" id="player-seat" placeholder="請輸入班號 (例如: 01)">
+      </div>
+
+      <div class="form-group">
+        <label>練習模式：</label>
+        <div class="mode-selector">
+          <button type="button" class="mode-btn active" onclick="selectMode('spelling', this)">聽寫拼字</button>
+          <button type="button" class="mode-btn" onclick="selectMode('matching', this)">中文配對</button>
+          <button type="button" class="mode-btn" onclick="selectMode('sentence', this)">例句填空</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>單詞範圍：</label>
+        <select id="group-select" onchange="fetchLeaderboard()">
+          <option value="p.38">p.38 (scholar ~ basic，共 14 題)</option>
+          <option value="p.39">p.39 (elementary ~ riddle，共 12 題)</option>
+          <option value="全部">全部 (p.38-39 隨機抽 10 題)</option>
+        </select>
+      </div>
+
+      <button type="button" class="start-btn" onclick="startGame()">🚀 開始挑戰 (進入計時)</button>
+    </div>
+
+    <div class="card-box">
+      <h2>
+        <span>🏆 即時排行榜</span>
+        <button type="button" class="clear-btn" style="color:#5b21b6; background:#ede9fe; border-color:#c4b5fd;" onclick="fetchLeaderboard()">🔄 重新整理</button>
+      </h2>
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>排名</th>
+            <th>姓名(班號)</th>
+            <th>得分</th>
+            <th>用時</th>
+          </tr>
+        </thead>
+        <tbody id="lobby-leaderboard-body"></tbody>
+      </table>
+    </div>
+
+    <div class="card-box">
+      <h2>
+        <span>📕 累積錯題本</span>
+        <button type="button" class="clear-btn" onclick="clearMistakes()">清空錯題本</button>
+      </h2>
+      <div id="mistakes-container"></div>
+    </div>
+  </div>
+
+
+  <!-- ==================== 遊戲挑戰頁面 (GAME) ==================== -->
+  <div id="game-view">
+    <div class="top-nav">
+      <button type="button" class="home-btn" onclick="confirmBackToLobby()">🏠 返回首頁</button>
+    </div>
+
+    <div class="status-bar">
+      <span id="player-tag">玩家: --</span>
+      <span id="timer-text">⏱️ 00:00</span>
+      <span id="progress-text">1 / 10</span>
+    </div>
+
+    <div class="card-box" id="main-card-box" onclick="focusInput()">
+      <div id="prompt-area" class="word-prompt">載入中...</div>
+      <div id="phonetic-area" class="phonetic"></div>
+
+      <div id="spelling-area">
+        <div id="letters-container" class="letters-container"></div>
+        <input type="text" id="hidden-input" autocomplete="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <div id="options-area" class="options-grid" style="display: none;"></div>
+
+      <div id="answer-display" class="answer-display"></div>
+    </div>
+
+    <div class="nav-control">
+      <button type="button" class="btn btn-danger" onclick="showAnswer()">💡 答案</button>
+      <button type="button" class="btn" id="prev-btn" onclick="prevQuestion()">⬅️ 上一題</button>
+      <button type="button" class="btn btn-primary" id="next-btn" onclick="nextQuestion()">下一題 ➡️</button>
+      <button type="button" class="btn btn-success" id="submit-btn" style="display: none;" onclick="finishGame()">🏁 完成結算</button>
+    </div>
+  </div>
+
+
+  <div id="result-modal" class="modal">
+    <div class="modal-content">
+      <h2 style="justify-content: center; font-size: 1.5rem;">🎉 挑戰完成！</h2>
+      <p id="result-desc" style="margin: 18px 0; font-size: 1.15rem; font-weight: bold; color: #1e293b;"></p>
+      <p id="upload-status" style="font-size: 0.9rem; color: #64748b; margin-bottom: 18px;">成績上傳中...</p>
+      <button type="button" class="start-btn" onclick="backToLobby()">返回首頁</button>
+    </div>
+  </div>
+
+
+  <script>
+    const rawData = [
+      { id: 1, page: "p.38", word: "scholar", phonetic: "/ˈskɒlə/", cn: "n. 學者", a2_sentence: "Professor Wang spends all his time reading ancient history books, and everyone respects him as a famous ______.", sentence_cn: "王教授花費所有時間閱讀古代歷史書籍，大家尊稱他為一位著名的學者。", sentence_hint: "王教授花費所有時間閱讀古代歷史書籍，大家尊稱他為一位著名的 ______。" },
+      { id: 2, page: "p.38", word: "graduate", phonetic: "/ˈɡrædʒuət/", cn: "n. 大學畢業生；v. 畢業", a2_sentence: "After four years of study, my sister became a university ______ and got a job at a school.", sentence_cn: "經過四年的學習後，我姐姐成為了一名大學畢業生，並在學校找到一份工作。", sentence_hint: "經過四年的學習後，我姐姐成為了一名大學 ______，並在學校找到一份工作。" },
+      { id: 3, page: "p.38", word: "pupil", phonetic: "/ˈpjuːpl/", cn: "n. 小學生；瞳孔", a2_sentence: "Every primary school ______ must wear a dark blue school uniform and a yellow cap.", sentence_cn: "每一位小學生都必須穿著深藍色校服和戴黃色帽子。", sentence_hint: "每一位小 ______ 都必須穿著深藍色校服和戴黃色帽子。" },
+      { id: 4, page: "p.38", word: "dropout", phonetic: "/ˈdrɒpaʊt/", cn: "n. 輟學者，退學生", a2_sentence: "The high school ______ left school early without finishing his studies, but later he went back to learn.", sentence_cn: "這位高中輟學者未完成學業就離開學校，但後來他重返校園學習。", sentence_hint: "這位高中 ______ 未完成學業就離開學校，但後來他重返校園學習。" },
+      { id: 5, page: "p.38", word: "scientist", phonetic: "/ˈsaɪəntɪst/", cn: "n. 科學家", a2_sentence: "The famous ______ spent years in the lab to invent a new medicine that saves lives.", sentence_cn: "這位著名的科學家在實驗室花了多年時間，發明出一種拯救生命的新藥。", sentence_hint: "這位著名的 ______ 在實驗室花了多年時間，發明出一種拯救生命的新藥。" },
+      { id: 6, page: "p.38", word: "inventor", phonetic: "/ɪnˈventə/", cn: "n. 發明者，發明家", a2_sentence: "Thomas Edison was a great ______ who created the light bulb and many other useful tools.", sentence_cn: "托馬斯·愛迪生是一位偉大的發明家，他創造了電燈泡和許多其他有用的工具。", sentence_hint: "托馬斯·愛迪生是一位偉大的 ______，他創造了電燈泡和許多其他有用的工具。" },
+      { id: 7, page: "p.38", word: "expert", phonetic: "/ˈekspɜːt/", cn: "n. 專家；adj. 熟練的", a2_sentence: "Because he has repaired computers for ten years, he is a real ______ in fixing hardware problems.", sentence_cn: "因為他修理電腦已有十年時間，他是修理硬體問題的真正專家。", sentence_hint: "因為他修理電腦已有十年時間，他是修理硬體問題的真正 ______。" },
+      { id: 8, page: "p.38", word: "specialist", phonetic: "/ˈspeʃəlɪst/", cn: "n. 專家", a2_sentence: "She is a medical ______ who only focuses on treating children's heart conditions.", sentence_cn: "她是一位專門關注治療兒童心臟狀況的專科專家。", sentence_hint: "她是一位專門關注治療兒童心臟狀況的專科 ______。" },
+      { id: 9, page: "p.38", word: "term", phonetic: "/tɜːm/", cn: "n. 期限；術語；條款；學期", a2_sentence: "We have two big examinations in a school year, one in the autumn ______ and one in spring.", sentence_cn: "我們在一個學年中有兩次大型考試，一次在秋季學期，一次在春季。", sentence_hint: "我們在一個學年中有兩次大型考試，一次在秋季 ______，一次在春季。" },
+      { id: 10, page: "p.38", word: "semester", phonetic: "/sɪˈmestə/", cn: "n. 一學期，半學年（尤指美國大專院校）", a2_sentence: "She will study abroad in France for one ______ from September to January.", sentence_cn: "從九月到一月，她將在法國留學一個學期。", sentence_hint: "從九月到一月，她將在法國留學一個 ______。" },
+      { id: 11, page: "p.38", word: "register", phonetic: "/ˈredʒɪstə/", cn: "v. 登記，註冊；n. 登記表，註冊簿", a2_sentence: "New students must ______ online before they start attending classes next Monday.", sentence_cn: "新學生在下星期一開始上課之前，必須先在線上登記註冊。", sentence_hint: "新學生在下星期一開始上課之前，必須先在線上 ______。" },
+      { id: 12, page: "p.38", word: "registration", phonetic: "/ˌredʒɪˈstreɪʃn/", cn: "n. 登記，註冊，掛號", a2_sentence: "You need to show your ID card at the desk to complete your course ______.", sentence_cn: "你需要在櫃檯出示身份證以完成你的課程登記報名。", sentence_hint: "你需要在櫃檯出示身份證以完成你的課程 ______。" },
+      { id: 13, page: "p.38", word: "enrolment", phonetic: "/ɪnˈrəʊlmənt/", cn: "n. 登記，註冊，入學", a2_sentence: "School ______ takes place in August, so parents must bring their children's documents then.", sentence_cn: "學校入學登記在八月進行，所以家長屆時必須攜帶孩子的證明文件。", sentence_hint: "學校 ______ 在八月進行，所以家長屆時必須攜帶孩子的證明文件。" },
+      { id: 14, page: "p.38", word: "basic", phonetic: "/ˈbeɪsɪk/", cn: "adj. 基本的，基礎的，初級的", a2_sentence: "Before learning advanced math, you should practice ______ skills like addition and subtraction.", sentence_cn: "在學習進階數學之前，你應該練習加法和減法等基礎技能。", sentence_hint: "在學習進階數學之前，你應該練習加法和減法等 ______ 技能。" },
+      { id: 15, page: "p.39", word: "elementary", phonetic: "/ˌelɪˈmentri/", cn: "adj. 基本的，初級的", a2_sentence: "He only speaks ______ English, so he uses simple words and slow speech.", sentence_cn: "他只會說初級英語，所以他使用簡單的單字和緩慢的語速。", sentence_hint: "他只會說 ______ 英語，所以他使用簡單的單字和緩慢的語速。" },
+      { id: 16, page: "p.39", word: "primary", phonetic: "/ˈpraɪməri/", cn: "adj. 最初的，主要的，小學教育的", a2_sentence: "Children usually enter ______ school when they are six years old.", sentence_cn: "兒童通常在六歲時進入小學（初級學校）。", sentence_hint: "兒童通常在六歲時進入小學（______ 學校）。" },
+      { id: 17, page: "p.39", word: "fundamental", phonetic: "/ˌfʌndəˈmentl/", cn: "adj. 基礎的，基本的", a2_sentence: "Water and sunlight are ______ to living things, so plants cannot grow without them.", sentence_cn: "水和陽光對生物來說是根本基礎的，因此沒有它們植物就無法生長。", sentence_hint: "水和陽光對生物來說是 ______ 的，因此沒有它們植物就無法生長。" },
+      { id: 18, page: "p.39", word: "intermediate", phonetic: "/ˌɪntəˈmiːdiət/", cn: "adj. 中間的，中級的", a2_sentence: "Since she is no longer a beginner, she moved up to the ______ English class this year.", sentence_cn: "由於她不再是初學者，她今年升到了中級英語班。", sentence_hint: "由於她不再是初學者，她今年升到了 ______ 英語班。" },
+      { id: 19, page: "p.39", word: "schedule", phonetic: "/ˈʃedjuːl/", cn: "n. 日程安排，計劃表，時刻表", a2_sentence: "According to our bus ______, the next bus arrives at exactly 3:30 p.m.", sentence_cn: "根據我們的巴士時刻表，下一班巴士將在下午 3:30 準時到達。", sentence_hint: "根據我們的巴士 ______，下一班巴士將在下午 3:30 準時到達。" },
+      { id: 20, page: "p.39", word: "scheme", phonetic: "/skiːm/", cn: "n. 詭計；計劃，方案", a2_sentence: "The principal made a new training ______ to help students improve their sport skills.", sentence_cn: "校長制定了一項新的訓練方案，以幫助學生提高運動技能。", sentence_hint: "校長制定了一項新的訓練 ______，以幫助學生提高運動技能。" },
+      { id: 21, page: "p.39", word: "assignment", phonetic: "/əˈsaɪnmənt/", cn: "n. 任務，作業", a2_sentence: "Our teacher gave us a reading ______ to finish before next Monday.", sentence_cn: "我們的老師給了我們一項閱讀作業，要求在下星期一前完成。", sentence_hint: "我們的老師給了我們一項閱讀 ______，要求在下星期一前完成。" },
+      { id: 22, page: "p.39", word: "examination", phonetic: "/ɪɡˌzæmɪˈneɪʃn/", cn: "n. 考試；檢查", a2_sentence: "Students studied in the library every night to pass their final ______.", sentence_cn: "學生們每天晚上都在圖書館學習，以便通過他們的期末考試。", sentence_hint: "學生們每天晚上都在圖書館學習，以便通過他們的期末 ______。" },
+      { id: 23, page: "p.39", word: "test", phonetic: "/test/", cn: "n./v. 試驗，檢驗", a2_sentence: "The experts have already experimented at several ______ sites. ", sentence_cn: "專家們已經在若干個試驗場進行了實驗。", sentence_hint: "專家們已經在若干個______場進行了實驗" },
+      { id: 24, page: "p.39", word: "quiz", phonetic: "/kwɪz/", cn: "n. 智力競賽，小測驗；小考", a2_sentence: "The teacher gave us a quick 5-minute math ______ at the start of class.", sentence_cn: "老師在課堂開始時給我們進行了一個5分鐘的快速數學小考。", sentence_hint: "老師在課堂開始時給我們進行了一個5分鐘的快速數學 ______。" },
+      { id: 25, page: "p.39", word: "puzzle", phonetic: "/ˈpʌzl/", cn: "n. 難題，不解之謎，益智遊戲；v. 使困惑", a2_sentence: "I spent two hours putting together a 500-piece jigsaw ______ on my desk.", sentence_cn: "我花了兩個小時在桌上拼湊一幅500塊的拼圖遊戲。", sentence_hint: "我花了兩個小時在桌上拼湊一幅500塊的拼 ______。" },
+      { id: 26, page: "p.39", word: "riddle", phonetic: "/ˈrɪdl/", cn: "n. 謎，謎語", a2_sentence: "Can you guess the answer to this fun ______: 'What gets wetter as it dries?'", sentence_cn: "你能猜出這個有趣的謎語答案嗎：『什麼東西越擦乾越濕？』", sentence_hint: "你能猜出這個有趣的 ______ 答案嗎：『什麼東西越擦乾越濕？』" }
+    ];
+
+    let selectedMode = 'spelling';
+    let quizList = [];
+    let quizListOptions = [];
+    let currentIndex = 0;
+    let userAnswers = {};
+
+    let timerInterval = null;
+    let secondsElapsed = 0;
+
+    let globalLeaderboard = [];
+    let localMistakes = JSON.parse(localStorage.getItem('f2_cet_p3839_mistakes') || '[]');
+
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFxYNWuJ_nTFA5TlYgKmdEuIOcvI0s_83CgVdsXQ8yRvBYcDUZcqlGCrE-rtqC1SBWwg/exec";
+
+    let synth = window.speechSynthesis;
+    let dictionaryVoice = null;
+
+    function initVoices() {
+      if ('speechSynthesis' in window) {
+        let voices = synth.getVoices();
+        // 優先挑選自然/美式高音質語音
+        dictionaryVoice = voices.find(v => v.lang.includes('en-US') && (v.name.includes('Google') || v.name.includes('Natural') || v.name.includes('Samantha') || v.name.includes('Premium'))) 
+                          || voices.find(v => v.lang.includes('en-US')) 
+                          || voices.find(v => v.lang.startsWith('en'));
+      }
+    }
+
+    if ('speechSynthesis' in window) {
+      speechSynthesis.onvoiceschanged = initVoices;
+      initVoices();
+    }
+
+    window.onload = function() {
+      fetchLeaderboard();
+      renderMistakes();
+      setupSpellingInputListener();
+    };
+
+    function selectMode(mode, btnElem) {
+      selectedMode = mode;
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      btnElem.classList.add('active');
+      renderLobbyLeaderboard();
+    }
+
+    function shuffleArray(arr) {
+      let a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function fetchLeaderboard() {
+      const tbody = document.getElementById('lobby-leaderboard-body');
+      tbody.innerHTML = `<tr><td colspan="4" style="color:#64748b; padding:12px;">⏳ 排行榜同步中...</td></tr>`;
+
+      fetch(GOOGLE_SCRIPT_URL, { method: 'GET', redirect: 'follow' })
+      .then(res => {
+        if (!res.ok) throw new Error("網路回應不正常");
+        return res.json();
+      })
+      .then(data => {
+        globalLeaderboard = data;
+        renderLobbyLeaderboard();
+      })
+      .catch(err => {
+        console.error("雲端數據加載失敗:", err);
+        tbody.innerHTML = `<tr><td colspan="4" style="color:#ef4444; padding:12px;">⚠️ 排行榜載入失敗，請檢查網路或 URL 設定</td></tr>`;
+      });
+    }
+
+    function renderLobbyLeaderboard() {
+      const tbody = document.getElementById('lobby-leaderboard-body');
+      tbody.innerHTML = '';
+
+      const selectedGroupVal = document.getElementById('group-select').value.trim(); 
+      const modeTextMap = { 'spelling': '聽寫拼字', 'matching': '中文配對', 'sentence': '例句填空' };
+      const currentModeText = modeTextMap[selectedMode];
+
+      function parseRangeKey(str) {
+        if (!str) return 'all';
+        let s = String(str).toLowerCase().replace(/\s+/g, '');
+        if (s.includes('38-39') || s.includes('全') || s.includes('all')) return 'all';
+        if (s.includes('38')) return 'p.38';
+        if (s.includes('39')) return 'p.39';
+        return 'all';
+      }
+
+      const targetGroupKey = parseRangeKey(selectedGroupVal);
+
+      const filtered = globalLeaderboard.filter(i => {
+        const itemGroupKey = parseRangeKey(i.group);
+        const isGroupMatch = (itemGroupKey === targetGroupKey);
+        
+        const itemMode = String(i.mode || '').replace(/\s+/g, '').toLowerCase();
+        const targetMode = currentModeText.replace(/\s+/g, '').toLowerCase();
+        const isModeMatch = (itemMode === targetMode) || (itemMode === selectedMode.toLowerCase());
+
+        return isGroupMatch && isModeMatch;
+      });
+
+      filtered.sort((a, b) => {
+        if (Number(b.score) !== Number(a.score)) {
+          return Number(b.score) - Number(a.score);
+        }
+        return Number(a.time) - Number(b.time);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" style="color:#94a3b8; padding:12px;">該分類無紀錄，成為第一個挑戰者吧！</td></tr>`;
+        return;
+      }
+
+      filtered.slice(0, 10).forEach((item, index) => {
+        const tr = document.createElement('tr');
+        let badge = index + 1;
+        if (index === 0) badge = '🥇 1';
+        else if (index === 1) badge = '🥈 2';
+        else if (index === 2) badge = '🥉 3';
+
+        tr.innerHTML = `
+          <td>${badge}</td>
+          <td>${item.name} (${item.seat})</td>
+          <td><b>${item.score}</b> 分</td>
+          <td>${formatTime(Number(item.time))}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMistakes() {
+      const container = document.getElementById('mistakes-container');
+      container.innerHTML = '';
+
+      if (localMistakes.length === 0) {
+        container.innerHTML = `<p style="color:#94a3b8; text-align:center; padding:10px;">目前沒有錯題紀錄，繼續保持！👍</p>`;
+        return;
+      }
+
+      localMistakes.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'mistake-item';
+        div.innerHTML = `
+          <div class="mistake-word">${item.word} <span style="font-size:0.85rem; color:#2563eb; font-weight:normal;">${item.phonetic}</span> <button type="button" class="speaker-btn" style="width:28px;height:28px;font-size:0.8rem;" onclick="speakWord('${item.word}')">🔊</button></div>
+          <div class="mistake-cn">${item.cn}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function clearMistakes() {
+      if (confirm('確定要清空錯題本嗎？')) {
+        localMistakes = [];
+        localStorage.setItem('f2_cet_p3839_mistakes', JSON.stringify([]));
+        renderMistakes();
+      }
+    }
+
+    function addMistake(item) {
+      if (!localMistakes.some(m => m.id === item.id)) {
+        localMistakes.push(item);
+        localStorage.setItem('f2_cet_p3839_mistakes', JSON.stringify(localMistakes));
+      }
+    }
+
+    function startGame() {
+      const name = document.getElementById('player-name').value.trim();
+      const seat = document.getElementById('player-seat').value.trim();
+
+      if (!name || !seat) {
+        alert('請先輸入姓名與班號！');
+        return;
+      }
+
+      const groupVal = document.getElementById('group-select').value;
+      
+      if (groupVal === "p.38") {
+        quizList = shuffleArray(rawData.filter(d => d.page === "p.38"));
+      } else if (groupVal === "p.39") {
+        quizList = shuffleArray(rawData.filter(d => d.page === "p.39"));
+      } else {
+        quizList = shuffleArray([...rawData]).slice(0, 10);
+      }
+
+      quizListOptions = [];
+
+      quizList.forEach(item => {
+        const key = selectedMode === 'matching' ? 'cn' : 'word';
+        let options = [item[key]];
+        let otherPool = rawData.filter(d => d.id !== item.id).map(d => d[key]);
+        options = options.concat(shuffleArray(otherPool).slice(0, 3));
+        quizListOptions.push(shuffleArray(options));
+      });
+
+      currentIndex = 0;
+      userAnswers = {};
+
+      document.getElementById('player-tag').innerText = `👤 ${name} (${seat}號)`;
+      document.getElementById('lobby-view').style.display = 'none';
+      document.getElementById('game-view').style.display = 'block';
+
+      startTimer();
+      loadQuestion(true);
+    }
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      secondsElapsed = 0;
+      timerInterval = setInterval(() => {
+        secondsElapsed++;
+        document.getElementById('timer-text').innerText = `⏱️ ${formatTime(secondsElapsed)}`;
+      }, 1000);
+    }
+
+    function formatTime(secs) {
+      const m = String(Math.floor(secs / 60)).padStart(2, '0');
+      const s = String(secs % 60).padStart(2, '0');
+      return `${m}:${s}`;
+    }
+
+    function loadQuestion(shouldSpeak = true) {
+      document.getElementById('answer-display').style.display = 'none';
+      const item = quizList[currentIndex];
+
+      if (selectedMode !== 'sentence' && shouldSpeak) {
+        speakWord(item.word);
+      } else if (selectedMode === 'sentence') {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      document.getElementById('progress-text').innerText = `${currentIndex + 1} / ${quizList.length}`;
+      document.getElementById('prev-btn').style.visibility = currentIndex === 0 ? 'hidden' : 'visible';
+      
+      const submitBtn = document.getElementById('submit-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      if (currentIndex === quizList.length - 1) {
+        nextBtn.style.display = 'none';
+        submitBtn.style.display = 'block';
+      } else {
+        nextBtn.style.display = 'block';
+        submitBtn.style.display = 'none';
+      }
+
+      const spellingArea = document.getElementById('spelling-area');
+      const optionsArea = document.getElementById('options-area');
+
+      if (selectedMode === 'spelling') {
+        spellingArea.style.display = 'block';
+        optionsArea.style.display = 'none';
+
+        document.getElementById('prompt-area').innerHTML = `${item.cn} <button type="button" class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('phonetic-area').innerText = item.phonetic;
+
+        const container = document.getElementById('letters-container');
+        container.innerHTML = '';
+        const savedVal = userAnswers[currentIndex] || '';
+
+        const input = document.getElementById('hidden-input');
+        if (input) {
+          input.value = savedVal;
+        }
+
+        for (let i = 0; i < item.word.length; i++) {
+          const box = document.createElement('div');
+          box.className = 'letter-box';
+          if (savedVal[i]) box.innerText = savedVal[i];
+          container.appendChild(box);
+        }
+
+        refreshSpellingUI(savedVal, item.word);
+        
+        setTimeout(focusInput, 50);
+
+      } else if (selectedMode === 'matching') {
+        spellingArea.style.display = 'none';
+        optionsArea.style.display = 'grid';
+
+        document.getElementById('prompt-area').innerHTML = `${item.word} <button type="button" class="speaker-btn" onclick="event.stopPropagation(); speakWord('${item.word}')">🔊</button>`;
+        document.getElementById('phonetic-area').innerText = item.phonetic;
+
+        renderOptions('cn');
+
+      } else if (selectedMode === 'sentence') {
+        spellingArea.style.display = 'none';
+        optionsArea.style.display = 'grid';
+
+        document.getElementById('prompt-area').innerHTML = `
+          <div style="text-align: left; line-height: 1.6; font-size: 1.15rem;">${item.a2_sentence}</div>
+          <div style="font-size: 0.95rem; color: #5b21b6; margin-top: 12px; background: #faf5ff; padding: 10px 14px; border-radius: 12px; border: 1px dashed #c4b5fd; text-align: left; font-weight: normal;">
+            💡 <b>句意提示：</b> ${item.sentence_hint || item.sentence_cn}
+          </div>
+        `;
+        document.getElementById('phonetic-area').innerText = "";
+
+        renderOptions('word');
+      }
+    }
+
+    function renderOptions(key) {
+      const container = document.getElementById('options-area');
+      container.innerHTML = '';
+
+      const options = quizListOptions[currentIndex] || [];
+      const currentItem = quizList[currentIndex];
+      const savedAns = userAnswers[currentIndex];
+
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+
+        if (savedAns !== undefined) {
+          if (opt === savedAns) {
+            if (savedAns === currentItem[key]) {
+              btn.classList.add('correct');
+            } else {
+              btn.classList.add('wrong');
+            }
+          }
+          if (opt === currentItem[key] && savedAns !== currentItem[key]) {
+            btn.classList.add('correct');
+          }
+        }
+
+        btn.onclick = (e) => {
+          e.stopPropagation();
+          userAnswers[currentIndex] = opt;
+          renderOptions(key);
+        };
+
+        container.appendChild(btn);
+      });
+    }
+
+    function refreshSpellingUI(val, targetWord) {
+      const boxes = document.querySelectorAll('.letter-box');
+      boxes.forEach((box, i) => {
+        box.classList.remove('active', 'correct', 'wrong');
+        box.innerText = val[i] || '';
+
+        if (val.length === targetWord.length) {
+          if (val === targetWord) box.classList.add('correct');
+          else box.classList.add('wrong');
+        } else {
+          if (i === val.length) box.classList.add('active');
+        }
+      });
+    }
+
+    function setupSpellingInputListener() {
+      const input = document.getElementById('hidden-input');
+      if (!input) return;
+
+      input.addEventListener('input', (e) => {
+        if (selectedMode !== 'spelling') return;
+
+        const targetWord = quizList[currentIndex].word;
+        let val = e.target.value.toLowerCase().replace(/[^a-z]/g, '');
+
+        if (val.length > targetWord.length) val = val.slice(0, targetWord.length);
+
+        e.target.value = val;
+        userAnswers[currentIndex] = val;
+        refreshSpellingUI(val, targetWord);
+      });
+    }
+
+    function focusInput() {
+      if (selectedMode === 'spelling') {
+        const inp = document.getElementById('hidden-input');
+        if (inp) {
+          inp.focus();
+        }
+      }
+    }
+
+    function speakWord(text) {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); // 停止先前的發音
+        const msg = new SpeechSynthesisUtterance(text);
+        msg.lang = 'en-US'; // 強制指定美式英語發音
+        msg.rate = 0.85;    // 稍微放慢速度使發音更清晰
+        msg.pitch = 1.0;
+
+        if (dictionaryVoice) {
+          msg.voice = dictionaryVoice;
+        }
+
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    function prevQuestion() { if (currentIndex > 0) { currentIndex--; loadQuestion(true); } }
+    function nextQuestion() { if (currentIndex < quizList.length - 1) { currentIndex++; loadQuestion(true); } }
+
+    function showAnswer() {
+      const item = quizList[currentIndex];
+      const ansDiv = document.getElementById('answer-display');
+      ansDiv.style.display = 'block';
+
+      if (selectedMode === 'sentence') {
+        ansDiv.innerHTML = `📌 <b>正確填空：</b> ${item.word}<br>📖 <b>完整翻譯：</b> ${item.sentence_cn}`;
+      } else {
+        ansDiv.innerHTML = `📌 <b>單詞：</b> ${item.word}<br>📖 <b>中文解釋：</b> ${item.cn}`;
+      }
+    }
+
+    function calculateScore() {
+      let correct = 0;
+      quizList.forEach((item, idx) => {
+        const ans = userAnswers[idx];
+        let isCorrect = false;
+
+        if (selectedMode === 'spelling' || selectedMode === 'sentence') {
+          if (ans === item.word) isCorrect = true;
+        } else if (selectedMode === 'matching') {
+          if (ans === item.cn) isCorrect = true;
+        }
+
+        if (isCorrect) {
+          correct++;
+        } else {
+          addMistake(item);
+        }
+      });
+      return Math.round((correct / quizList.length) * 100);
+    }
+
+    function finishGame() {
+      clearInterval(timerInterval);
+      const score = calculateScore();
+      const name = document.getElementById('player-name').value.trim();
+      const seat = document.getElementById('player-seat').value.trim();
+      const groupVal = document.getElementById('group-select').value;
+      const modeTextMap = { 'spelling': '聽寫拼字', 'matching': '中文配對', 'sentence': '例句填空' };
+      const currentModeText = modeTextMap[selectedMode];
+
+      document.getElementById('result-desc').innerText = `最終得分：${score} 分\n用時：${formatTime(secondsElapsed)}`;
+      document.getElementById('result-modal').style.display = 'flex';
+
+      const payload = {
+        name: name,
+        seat: seat,
+        group: groupVal,
+        mode: currentModeText,
+        score: score,
+        time: secondsElapsed,
+        timestamp: new Date().toLocaleString()
+      };
+
+      const statusElem = document.getElementById('upload-status');
+      statusElem.innerText = "正在同步成績至雲端...";
+
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        statusElem.innerText = "✅ 成績已成功上傳至雲端！";
+        setTimeout(() => {
+          fetchLeaderboard();
+        }, 1500);
+      })
+      .catch((err) => {
+        console.error(err);
+        statusElem.innerText = "⚠️ 網路原因上傳失敗。";
+      });
+    }
+
+    function confirmBackToLobby() {
+      if (confirm('確定要返回首頁嗎？當前挑戰進度將不會儲存。')) {
+        clearInterval(timerInterval);
+        backToLobby();
+      }
+    }
+
+    function backToLobby() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      document.getElementById('result-modal').style.display = 'none';
+      document.getElementById('game-view').style.display = 'none';
+      document.getElementById('lobby-view').style.display = 'block';
+      fetchLeaderboard();
+      renderMistakes();
+    }
+  </script>
+</body>
+</html>
